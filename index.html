@@ -295,7 +295,7 @@ villager:['🧑‍🌾',`Warga biasa tanpa kemampuan khusus. Senjatamu adalah di
 seer:['🔮',`Tiap malam kamu menunjuk 1 pemain, lalu moderator memberi tahu apakah dia Wolf atau Not Wolf. Pakai informasi ini untuk menuntun warga, tapi hati-hati: kalau ketahuan, serigala akan mengincarmu.`],
 guardian:['🛡️',`Tiap malam kamu melindungi 1 pemain dari serangan. Boleh melindungi dirimu sendiri, dan boleh orang yang sama terus-menerus. Pemain yang kamu lindungi tidak bisa mati diserang malam itu.`],
 bodyguard:['🕶️',`Tiap malam kamu menjaga 1 pemain (bukan dirimu sendiri). Kalau pemain itu diserang, kamu yang mati menggantikannya dan dia selamat.`],
-hunter:['🏹',`Kalau kamu mati dengan cara apa pun (dimangsa atau kena vote), kamu langsung menembak 1 pemain pilihanmu, dan pemain itu ikut mati.`],
+hunter:[`<svg viewBox="0 0 64 64" aria-hidden="true"><rect x="6" y="18" width="50" height="14" rx="3" fill="#fff"/><rect x="9" y="14.5" width="5" height="4" rx="1" fill="#fff"/><rect x="48" y="14.5" width="5" height="4" rx="1" fill="#fff"/><path d="M38 32h16l-5 22a3 3 0 0 1-3 2.3h-6a3 3 0 0 1-3-3.6z" fill="#fff"/><path d="M24 32v6a4 4 0 0 0 4 4h8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M30 32v7" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M36 20v10M41 20v10M46 20v10" stroke="rgba(0,0,0,.28)" stroke-width="1.6" stroke-linecap="round"/></svg>`,`Kalau kamu mati dengan cara apa pun (dimangsa atau kena vote), kamu langsung menembak 1 pemain pilihanmu, dan pemain itu ikut mati.`],
 witch:['🧙‍♀️',`Kamu punya 2 ramuan sekali pakai: 1 ramuan penyembuh (menyelamatkan korban serigala malam itu) dan 1 racun (membunuh 1 pemain). Maksimal 1 ramuan per malam.`],
 cupid:['💘',`Malam pertama, kamu memilih 1 pemain sebagai pasanganmu (Lovers). Kalian berdua saling kenal, dan kalau salah satu mati, yang lain ikut mati. Kalau tinggal kalian berdua yang hidup, kalian menang berdua.`],
 mayor:['🎖️',`Identitasmu tetap rahasia. Saat voting, suaramu dihitung dua kali, jadi pendapatmu sangat berpengaruh. Gunakan dengan bijak supaya serigala tidak menyadari siapa kamu.`],
@@ -387,11 +387,7 @@ function bTap(id){const p=G.p[id],c=$('#bc'+id);
 /* ---------- Papan moderator: Catat Aksi Malam (tombol per peran, agar host awam gampang) ---------- */
 let NA=null;
 function nightActionStart(){G.night++;const first=G.night==1;const queue=[];
- // Cupid: cuma muncul kalau perannya ada di antara pemain hidup, dan cuma malam pertama (pairing sekali per game).
- if(first&&!G.lovers){A().filter(p=>p.role=='cupid').forEach(c=>{
-  queue.push(done=>pick(`Cupid: ${esc(c.name)}`,'Pilih 1 pemain (bukan dirinya sendiri) sebagai pasangannya (Lovers). Ini rahasia. Kalau salah satu mati, yang lain ikut mati.',A().filter(x=>x.id!=c.id),1,s=>{G.lovers=[c.id,s[0]];
-   inf('Lovers',`<b>${esc(c.name)}</b> dan <b>${esc(G.p[s[0]].name)}</b> sekarang jadi pasangan (Lovers). Beri tahu mereka berdua secara rahasia, jangan di depan pemain lain.`)(done)}));
- });}
+ // Cupid: sekarang punya kolom sendiri di layar Catat Aksi Malam (lihat renderNightAction).
  // Orphan: pilih Parent di malam pertama, atau warisi peran kalau Parent-nya sudah mati.
  A().filter(p=>p.role=='orphan').forEach(o=>{
   if(first&&o.parent===null){
@@ -402,18 +398,20 @@ function nightActionStart(){G.night++;const first=G.night==1;const queue=[];
     queue.push(inf(`Orphan: ${esc(o.name)}`,`Parent (${esc(pr.name)}) sudah mati. Peran barunya sekarang: <b>${RL[nr][0]}</b>.<p>${RL[nr][2]}</p>`));}
   }
  });
- NA={atk:new Set(),guard:new Set(),jail:new Set(),bodyguardTarget:null,witchHeal:null,witchPoison:null,alphaConvert:null};
+ NA={atk:new Set(),kill:new Set(),guard:new Set(),jail:new Set(),link:null,bodyguardTarget:null,witchHeal:null,witchPoison:null,alphaConvert:null};
  const run=()=>{if(!queue.length)return renderNightAction();queue.shift()(run)};
  run()}
 function renderNightAction(){setSt('AKSI MALAM');
  const al=A(),dead=G.p.filter(p=>!p.alive);
  const alpha=al.find(p=>p.role=='alpha'),witch=al.find(p=>p.role=='witch'),bg=al.find(p=>p.role=='bodyguard'),seer=al.find(p=>p.role=='seer'),ghost=al.find(p=>p.role=='ghost');
- const guardianAlive=al.some(p=>p.role=='guardian'),jailerAlive=al.some(p=>p.role=='jailer');
- const rows=al.map(p=>`<div class=row><span>${esc(p.name)}</span><span class=gx>
-   ${guardianAlive?`<button class="g sm${NA.guard.has(p.id)?' sel':''}" onclick="naToggle('guard',${p.id})">🛡️ Lindungi</button>`:''}
-   <button class="g sm${NA.atk.has(p.id)?' sel':''}" onclick="naToggle('atk',${p.id})">🐺 Serang</button>
-   ${jailerAlive?`<button class="g sm${NA.jail.has(p.id)?' sel':''}" onclick="naToggle('jail',${p.id})">⛓️ Tahan</button>`:''}
- </span></div>`).join('');
+ const cl=(k,list,fn)=>`<div class=grid>${list.map(p=>`<button class="g${(k=='link'?NA.link===p.id:NA[k].has(p.id))?' sel':''}" onclick="${fn}('${k}',${p.id})">${esc(p.name)}</button>`).join('')}</div>`;
+ const wolves=al.filter(p=>SW.includes(p.role)),killer=al.find(p=>p.role=='killer'),guardian=al.find(p=>p.role=='guardian'),jailer=al.find(p=>p.role=='jailer'),cupid=al.find(p=>p.role=='cupid');
+ let pre='';
+ if(wolves.length)pre+=`<div class=card><b>🐺 Wolf: ${wolves.map(p=>esc(p.name)).join(', ')}</b><p>Pilih korban serigala (hanya pemain selain Wolf):</p>${cl('atk',al.filter(p=>!SW.includes(p.role)),'naToggle')}</div>`;
+ if(killer)pre+=`<div class=card><b>🔪 Killer: ${esc(killer.name)}</b><p>Pilih korban Killer:</p>${cl('kill',al.filter(p=>p.id!=killer.id),'naToggle')}</div>`;
+ if(guardian)pre+=`<div class=card><b>🛡️ Guardian: ${esc(guardian.name)}</b><p>Pilih 1 pemain yang dilindungi (boleh diri sendiri):</p>${cl('guard',al,'naPick')}</div>`;
+ if(jailer)pre+=`<div class=card><b>⛓️ Jailer: ${esc(jailer.name)}</b><p>Pilih 1 pemain yang ditahan (kebal, tapi kemampuannya nonaktif malam ini):</p>${cl('jail',al,'naPick')}</div>`;
+ if(cupid&&!G.lovers)pre+=`<div class=card><b>💘 Cupid: ${esc(cupid.name)}</b><p>Pilih 1 pemain sebagai pasangannya (Lovers). Rahasia, hanya tunjukkan ke Cupid.</p>${cl('link',al.filter(p=>p.id!=cupid.id),'naLink')}${NA.link!=null?`<p>Pasangan terpilih: <b>${esc(G.p[NA.link].name)}</b></p>`:''}</div>`;
  let extra='';
  if(bg)extra+=`<div class=card><b>🕶️ Bodyguard: ${esc(bg.name)}</b><p>Siapa yang dijaga malam ini? Kalau dia diserang, Bodyguard mati menggantikannya.</p><select onchange="NA.bodyguardTarget=this.value?parseInt(this.value):null"><option value="">Tidak menjaga</option>${al.filter(p=>p.id!=bg.id).map(p=>`<option value=${p.id} ${NA.bodyguardTarget==p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>`;
  if(witch){extra+=`<div class=card><b>🧙‍♀️ Witch: ${esc(witch.name)}</b>`;
@@ -423,31 +421,35 @@ function renderNightAction(){setSt('AKSI MALAM');
  if(alpha&&!G.alphaUsed)extra+=`<div class=card><b>👑 Alpha Wolf: ${esc(alpha.name)}</b><p>Kalau serigala cuma menyerang 1 orang malam ini, Alpha boleh mengubahnya jadi Werewolf alih-alih membunuhnya (sekali per game, gagal kalau korbannya dilindungi/dijaga/ditahan).</p><select onchange="NA.alphaConvert=this.value?parseInt(this.value):null"><option value="">Bunuh seperti biasa</option>${[...NA.atk].map(i=>`<option value=${i} ${NA.alphaConvert==i?'selected':''}>${esc(G.p[i].name)} — ubah jadi Werewolf</option>`).join('')}</select></div>`;
  if(seer)extra+=`<div class=card><b>🔮 Seer: ${esc(seer.name)}</b><p>Cek 1 pemain (hasil langsung tampil — hanya tunjukkan ke Seer):</p><div class=grid>${al.filter(p=>p.id!=seer.id).map(p=>`<button class=g onclick="naSeerCheck(${p.id})">${esc(p.name)}</button>`).join('')}</div></div>`;
  if(ghost&&dead.length)extra+=`<div class=card><b>👻 Ghost Whisperer: ${esc(ghost.name)}</b><p>Lihat peran pemain yang sudah mati (hanya tunjukkan ke Ghost Whisperer):</p><div class=grid>${dead.map(p=>`<button class=g onclick="naGhostPeek(${p.id})">${esc(p.name)}</button>`).join('')}</div></div>`;
- R(`<button class=g onclick=wwBoard()>← Batal, kembali ke papan</button><h2>Catat Aksi Malam ${G.night}</h2><p>Tandai <b>🛡️ Lindungi</b>, <b>🐺 Serang</b>, atau <b>⛓️ Tahan</b> (Jailer: kebal + kemampuannya nonaktif malam ini) buat tiap pemain, lalu isi peran spesial di bawah kalau ada yang hidup.</p><div class=card>${rows}</div>${extra}<button class=a onclick=naProcess()>✅ Proses Hasil Malam</button>`)}
+ R(`<button class=g onclick=wwBoard()>← Batal, kembali ke papan</button><h2>Catat Aksi Malam ${G.night}</h2><p>Tiap peran yang hidup punya kolom sendiri. Pilih target di kolom masing-masing, lalu tekan Proses Hasil Malam.</p>${pre}${extra}<button class=a onclick=naProcess()>✅ Proses Hasil Malam</button>`)}
 function naSeerCheck(id){const p=G.p[id],inf=roleInfo('ww',p.role);setSt('HASIL SEER');
  R(`<h2>Hasil Seer</h2><div class="card role" style="text-align:center;border:2px solid ${inf.tc}"><div class=center>${avatar(p.id,64)}<h2 style="margin:4px 0 0">${esc(p.name)}</h2><div class=rh>${inf.logo(80)}<h1 style="margin:4px 0 0">${inf.n}</h1><span class=tag style="background:${inf.tc}">${inf.team}</span></div></div></div><p>Tunjukkan ini cuma ke Seer, lalu lanjut isi aksi malam yang lain.</p><button class=a onclick=renderNightAction()>Lanjut</button>`)}
 function naGhostPeek(id){const p=G.p[id];setSt('HASIL GHOST');
  R(`<h2>Hasil Ghost Whisperer</h2><div class=card><b>${esc(p.name)}</b> adalah <b>${RL[p.role][0]}</b>.</div><p>Tunjukkan ini cuma ke Ghost Whisperer, lalu lanjut isi aksi malam yang lain.</p><button class=a onclick=renderNightAction()>Lanjut</button>`)}
+function naPick(k,id){const had=NA[k].has(id);NA[k].clear();if(!had)NA[k].add(id);renderNightAction()}
+function naLink(k,id){NA.link=NA.link===id?null:id;renderNightAction()}
 function naToggle(k,id){NA[k].has(id)?NA[k].delete(id):NA[k].add(id);
  if(k=='atk'&&!NA.atk.has(id)){if(NA.witchHeal===id)NA.witchHeal=null;if(NA.alphaConvert===id)NA.alphaConvert=null}
  renderNightAction()}
-function naProcess(){G.D=[];const saved=[],converted=[];
+function naProcess(){G.D=[];const saved=[],converted=[];let linked=null;
+ const cp=A().find(p=>p.role=='cupid');if(cp&&NA.link!=null&&!G.lovers){G.lovers=[cp.id,NA.link];linked=G.lovers}
  // G.D direset dulu, lalu diisi otomatis oleh kill() — termasuk efek rantai Lovers (pasangan Cupid
  // ikut mati), racun Witch, dan nanti giliran Hunter balas tembak. Jadi ringkasan di bawah pasti
  // lengkap, bukan cuma orang yang langsung ditandai "Serang".
  const bg=A().find(p=>p.role=='bodyguard');
  const protectedIds=new Set([...NA.guard,...NA.jail]);
  if(NA.bodyguardTarget!=null&&bg)protectedIds.add(NA.bodyguardTarget);
- NA.atk.forEach(id=>{if(!G.p[id].alive)return;
+ NA.atk.forEach(id=>{if(!G.p[id].alive)return;if(G.p[id].role=='killer')return;
   if(id===NA.alphaConvert){if(!protectedIds.has(id)&&!G.alphaUsed){G.p[id].role='werewolf';G.p[id].u={};G.alphaUsed=true;converted.push(id)}return}
   if(id===NA.witchHeal){saved.push(id);return}
   if(protectedIds.has(id)){if(NA.bodyguardTarget===id&&bg){kill(bg.id,'bg')}saved.push(id);return}
   kill(id,'wolf')});
+ NA.kill.forEach(id=>{if(!G.p[id].alive)return;if(protectedIds.has(id)){if(NA.bodyguardTarget===id&&bg){kill(bg.id,'bg')}saved.push(id);return}kill(id,'kill')});
  if(NA.witchPoison!=null&&G.p[NA.witchPoison].alive&&!NA.guard.has(NA.witchPoison)&&!NA.jail.has(NA.witchPoison))kill(NA.witchPoison,'witch');
  const witch=A().find(p=>p.role=='witch');
  if(witch){if(NA.witchHeal!=null)witch.u.heal=true;if(NA.witchPoison!=null)witch.u.poison=true}
  NA=null;
- hunters(()=>R(`<h2>Hasil Malam</h2><div class=card>${G.D.length?'Meninggal malam ini: <b>'+G.D.map(i=>esc(G.p[i].name)).join(', ')+'</b>':'Tidak ada yang meninggal.'}${saved.length?'<br>Diserang tapi masih hidup (terlindungi): <b>'+saved.map(i=>esc(G.p[i].name)).join(', ')+'</b>':''}${converted.length?'<br>⚠️ Diam-diam diubah Alpha jadi Werewolf (beri tahu orangnya sendiri-sendiri, jangan di depan yang lain): <b>'+converted.map(i=>esc(G.p[i].name)).join(', ')+'</b>':''}</div><button class=a onclick=wwBoard()>Lanjut ke papan</button>`))}
+ hunters(()=>R(`<h2>Hasil Malam</h2><div class=card>${G.D.length?'Meninggal malam ini: <b>'+G.D.map(i=>esc(G.p[i].name)).join(', ')+'</b>':'Tidak ada yang meninggal.'}${saved.length?'<br>Diserang tapi masih hidup (terlindungi): <b>'+saved.map(i=>esc(G.p[i].name)).join(', ')+'</b>':''}${converted.length?'<br>⚠️ Diam-diam diubah Alpha jadi Werewolf (beri tahu orangnya sendiri-sendiri, jangan di depan yang lain): <b>'+converted.map(i=>esc(G.p[i].name)).join(', ')+'</b>':''}${linked?'<br>💘 Lovers terpasang (rahasia, beri tahu mereka berdua saja): <b>'+linked.map(i=>esc(G.p[i].name)).join(' ❤ ')+'</b>':''}</div><button class=a onclick=wwBoard()>Lanjut ke papan</button>`))}
 
 /* tombol "Main lagi" dan mulai game memakai alur baru */
 wwSetup=()=>startGame('ww');mwSetup=()=>startGame('mw');
