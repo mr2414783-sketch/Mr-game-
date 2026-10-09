@@ -98,6 +98,10 @@ button.bigb{padding:20px 16px;font-size:18px;border-radius:18px;margin:10px 0}
 .qbox{background:var(--panel);border-radius:20px;padding:20px;width:100%;max-width:360px;text-align:center}
 /* revisi */
 .qd{overflow:auto}.qbox{max-height:92vh;overflow:auto}
+.xw{position:relative;display:block}.xs{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.xs line{stroke:#ED4956;stroke-width:9;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:xd .45s ease-out .35s forwards}.xs line.l2{animation-delay:.8s}
+@keyframes xd{to{stroke-dashoffset:0}}
+.zin{animation:zi .4s cubic-bezier(.2,1.3,.4,1)}@keyframes zi{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
 </style>
 </head>
 <body>
@@ -157,13 +161,22 @@ const quit=()=>{if($('#qd'))return;const d=document.createElement('div');d.id='q
  document.body.appendChild(d);$('#qn').onclick=()=>d.remove();$('#qy').onclick=()=>{d.remove();Menu()}};
 
 /* ---------- Mr. White ---------- */
-const WP=[['Kopi','Teh'],['Kucing','Anjing'],['Bakso','Mie ayam'],['Motor','Sepeda'],['Pantai','Kolam renang'],['Dokter','Perawat'],['Nasi goreng','Mie goreng'],['Gitar','Piano'],['Sungai','Danau'],['Sepatu','Sandal'],['Hujan','Salju'],['Roti','Kue'],['Pensil','Pulpen'],['Bioskop','Teater']];
+const WP=[['Kopi','Teh'],['Kucing','Anjing'],['Bakso','Mie ayam'],['Motor','Sepeda'],['Pantai','Kolam renang'],['Dokter','Perawat'],['Nasi goreng','Mie goreng'],['Gitar','Piano'],['Sungai','Danau'],['Sepatu','Sandal'],['Hujan','Salju'],['Roti','Kue'],['Pensil','Pulpen'],['Bioskop','Teater'],['Mobil','Bus'],['Apel','Jeruk'],['Sabun','Sampo'],['Gunung','Bukit'],['Pesawat','Helikopter'],['Guru','Dosen'],['Es krim','Es teh'],['Sate','Rendang'],['Jaket','Sweater'],['Kursi','Sofa'],['Handphone','Laptop'],['Bulan','Matahari'],['Kereta api','MRT'],['Sapi','Kambing'],['Ayam','Bebek'],['Ikan','Udang'],['Pisang','Mangga'],['Susu','Yogurt'],['Sekolah','Kampus'],['Rumah sakit','Puskesmas'],['Polisi','Satpam'],['Raja','Presiden'],['Buku','Majalah'],['Televisi','Radio'],['Payung','Jas hujan'],['Sendok','Garpu'],['Piring','Mangkuk'],['Pasar','Supermarket'],['Pizza','Burger'],['Tahu','Tempe'],['Singa','Harimau'],['Sepak bola','Futsal'],['Ulang tahun','Pernikahan'],['Bawang merah','Bawang putih'],['Gelas','Cangkir'],['Hotel','Villa']];
+function pickWP(){let u=ls.get('mwUsed',[]).filter(i=>i<WP.length);if(u.length>=WP.length)u=[];const av=WP.map((_,i)=>i).filter(i=>!u.includes(i)),i=av[Math.random()*av.length|0];u.push(i);ls.set('mwUsed',u);return WP[i]}
 const ML={civ:'Warga',und:'Undercover',white:'Mr. White'};
 function mwSetup(){names(3,12,a=>{const n=a.length,u=n>=4?(n>=9?2:1):0,pr=sh(WP)[0],[c,d]=Math.random()<.5?pr:[pr[1],pr[0]],rs=sh([...Array(n-u-1).fill('civ'),...Array(u).fill('und'),'white']);
  M={p:a.map((name,i)=>({id:i,name,r:rs[i],alive:true})),c,d};
  reveal(M.p,p=>p.r=='white'?'<span class=tag>Mr. White</span><p>Kamu tidak dapat kata. Pura-pura tahu!</p>':`<p>Katamu:</p><div class=big>${esc(p.r=='civ'?c:d)}</div>`,mwRound)},'Mr. White')}
 const mA=()=>M.p.filter(p=>p.alive);
-function mwRound(){const o=sh(mA());R(`<h2>Putaran petunjuk</h2><p>Bergantian, tiap pemain menyebut satu kata petunjuk tentang katanya. Jangan terlalu jelas.</p><div class=card>${o.map((p,i)=>`<div class=row><span>${i+1}. ${esc(p.name)}</span></div>`).join('')}</div><button class=a onclick=mwVote()>Lanjut ke voting</button><button class=g onclick=quit()>Keluar game</button>`)}
+function mwRound(){const o=sh(mA()).map(p=>esc(p.name)).join(' → ');
+ R(`<h2>Putaran petunjuk</h2><p>Urutan bicara: ${o}</p><div class=pgrid>${M.p.map(p=>`<div class="pcard${p.alive?'':' dead'}"><div class=pin><div class="face front">${avatar(p.id,56)}<b class=pn>${esc(p.name)}</b>${p.alive?`<button class=a onclick="mwTap(${p.id})">Vote</button>`:'<small>Tereliminasi</small>'}<span class=skull>☠️</span></div></div></div>`).join('')}</div><button class=g onclick=quit()>Keluar game</button>`)}
+function mwTap(id){if($('#mwc'))return;const p=M.p[id],d=document.createElement('div');d.className='qd';d.id='mwc';
+ d.innerHTML=`<div class=qbox><h2>Vote ${esc(p.name)}?</h2><p>Pemain ini akan tereliminasi.</p><button class=a id=mwy>Ya, eliminasi</button><button class=g id=mwn>Batal</button></div>`;
+ document.body.appendChild(d);$('#mwn').onclick=()=>d.remove();$('#mwy').onclick=()=>{d.remove();mwKill(id)}}
+function mwKill(id){const p=M.p[id];p.alive=false;const f=roleInfo('mw',p.r),d=document.createElement('div');d.className='qd';
+ d.innerHTML=`<div class="qbox zin" style="max-width:380px">${avatar(id,64)}<h2 style="margin:4px 0 0">${esc(p.name)}</h2><div class=xw style="width:170px;height:170px;margin:10px auto 4px">${f.logo(170)}<svg class=xs viewBox="0 0 100 100"><line pathLength="1" x1="10" y1="10" x2="90" y2="90"/><line class=l2 pathLength="1" x1="90" y1="10" x2="10" y2="90"/></svg></div><h1 style="margin:6px 0 10px;font-size:30px">${f.n}</h1><button class=a id=mwk>OK</button></div>`;
+ document.body.appendChild(d);$('#mwk').onclick=()=>{d.remove();p.r=='white'?mwWhite(p):mwNext()}}
+function mwWhite(p){R(`<h2>${esc(p.name)} disingkirkan</h2><p>Mr. White boleh menebak kata warga:</p><input id=gs placeholder="Tebakan kata"><button class=a onclick=mwGuess()>Tebak</button><button class=g onclick=mwNext()>Lewati</button>`)}
 function mwVote(){pick('Voting','Hitung suara secara lisan, lalu pilih pemain yang disingkirkan.',mA(),1,s=>mwOut(s[0]))}
 function mwOut(id){const p=M.p[id];p.alive=false;
  R(`<h2>${esc(p.name)} disingkirkan</h2><div class=card>Dia adalah <b>${ML[p.r]}</b></div>${p.r=='white'?`<p>Mr. White boleh menebak kata warga:</p><input id=gs placeholder="Tebakan kata"><button class=a onclick=mwGuess()>Tebak</button><button class=g onclick=mwNext()>Lewati</button>`:`<button class=a onclick=mwNext()>Lanjut</button>`}`)}
@@ -186,9 +199,9 @@ witch:['Witch','V','Punya 1 racun (bunuh 1 pemain) dan 1 ramuan hidup (hidupkan 
 cupid:['Cupid','V','Malam pertama pilih 1 pemain jadi pasanganmu (Lovers). Kalau salah satu mati, yang lain ikut mati.'],
 mayor:['Kepala Desa','V','Saat voting, cukup tunjuk orang yang kamu pilih dan itu jadi +1 suara untuknya. Identitasmu tetap rahasia.'],
 sick:['Sick Person','V','Kalau kamu dibunuh serigala, malam berikutnya serigala tidak bisa membunuh siapa pun (sakit perut).'],
-orphan:['Orphan','V','Malam pertama pilih 1 Parent. Kalau Parent mati, kamu mewarisi perannya dengan kemampuan baru dari awal. Kalau Parent-nya serigala atau netral, kamu jadi Villager.'],
+orphan:['Orphan','V','Malam pertama pilih 1 Parent. Selama Parent hidup, Seer melihatmu sebagai Villager. Kalau Parent mati, kamu berubah jadi Werewolf dan masuk tim serigala.'],
 killer:['Killer','N','Tiap malam bunuh 1 pemain dan kebal dari serangan serigala. Menang kalau jadi satu-satunya yang hidup. Seer melihatmu sebagai Not Wolf.']};
-const SW=['werewolf','alpha','cub'],isW=r=>RL[r][1]=='W',TM={W:'Wolf Team',V:'Village',N:'Neutral'};
+const SW=['werewolf','alpha','cub'],isW=r=>RL[r][1]=='W',isWN=p=>isW(p.role)||(p.role=='orphan'&&p.parent!==null&&!!G.p[p.parent]&&!G.p[p.parent].alive),TM={W:'Wolf Team',V:'Village',N:'Neutral'};
 function wwRoles(){R(`<button class=g onclick=Menu()>Kembali</button><h2>17 peran Werewolf</h2><p>Orphan dan Sick Person hanya muncul di 9 pemain ke atas. Sekitar 1 serigala untuk tiap 4 pemain.</p>${Object.keys(RL).map(k=>`<div class=card><b>${RL[k][0]}</b> <span class=tag>${TM[RL[k][1]]}</span><p>${RL[k][2]}</p></div>`).join('')}`)}
 function deal(n){const w=Math.max(1,Math.round(n/4)),wr=['werewolf'];
  if(n>=9&&w>1)wr.push('alpha');if(n>=15&&w>2)wr.push('cub');if(n>=15&&w>3)wr.push('minion');while(wr.length<w)wr.push('werewolf');
@@ -253,15 +266,18 @@ function hunters(cb){if(!G.hq.length)return cb();const h=G.p[G.hq.shift()];
   const n=G.D.length;kill(s[0],'hunt',h.name);const ids=G.D.slice(n);if(BM=='vote')VD.push(...ids);
   window.nxt=()=>hunters(cb);
   R(`<h2>Tembakan Hunter</h2><div class=card>${deathRows(ids)}</div><button class=a onclick=nxt()>Lanjut</button>`)},'Tidak menembak')}
-function win(){const al=A(),W=al.filter(p=>isW(p.role)).length,K=al.filter(p=>p.role=='killer').length,O=al.length-W-K;
+function win(){const al=A(),W=al.filter(isWN).length,K=al.filter(p=>p.role=='killer').length,O=al.length-W-K;
  if(al.length==2&&G.lovers&&al.every(p=>G.lovers.includes(p.id)))return'Lovers';
  if(!al.length)return'Tidak ada';if(!W&&!K)return'Village';if(K&&al.length==1)return'Killer';if(!K&&W>=O)return'Wolf Team';return null}
 const after=f=>{const w=win();w?end(w):f()};
 /* peringatan: hari voting ini mungkin yang TERAKHIR — kalau yang dieksekusi ternyata bukan
    serigala, serigala langsung menang detik itu juga. Dipakai di layar voting (alur panduan & papan). */
-function dangerMsg(){const al=A(),W=al.filter(p=>isW(p.role)).length,K=al.filter(p=>p.role=='killer').length,O=al.length-W-K;
+function dangerMsg(){const al=A(),W=al.filter(isWN).length,K=al.filter(p=>p.role=='killer').length,O=al.length-W-K;
  if(!K&&W>0&&O>0&&W>=O-1)return `<div class=card style="border-color:var(--red);background:rgba(237,73,86,.08)"><b style="color:var(--red)">⚠️ HATI-HATI, INI HARI VOTING TERAKHIR!</b><p style="margin:4px 0 0">Kalau yang divote/dieksekusi ternyata <b>bukan serigala</b>, tim serigala langsung menang saat itu juga. Tim villager harus benar-benar yakin sebelum eksekusi!</p></div>`;
- return '';}
+ return finalMsg();}
+function finalMsg(){const al=A(),W=al.filter(isWN).length,K=al.filter(p=>p.role=='killer').length;
+ if(al.length==3&&W==1&&K==1)return `<div class=card style="border-color:#8134AF;background:rgba(129,52,175,.08)"><b style="color:#8134AF">⚔️ FINAL 3 KUBU: Wolf vs Killer vs Villager</b><p style="margin:4px 0 0">Tidak ada yang bisa menang langsung lewat vote. Aturannya:</p><p style="margin:4px 0 0">• Kalau <b>Killer</b> kena vote → sisa Wolf vs Villager (1 lawan 1), <b>Wolf Team langsung menang</b>.<br>• Kalau <b>Wolf</b> kena vote → sisa Killer vs Villager. Killer membunuh tiap malam; Villager hanya menang kalau berhasil memvote Killer di siang berikutnya.<br>• Kalau <b>Villager</b> kena vote → sisa Wolf vs Killer. Wolf tidak bisa membunuh Killer, jadi Killer menang begitu berhasil membunuh Wolf.<br>• Malam hari: Wolf menyerang Villager, Killer boleh membunuh Wolf atau Villager (Killer kebal serangan Wolf).</p></div>`;
+ return ''}
 function dawn(){const w=win();
  R(`<h2>Pagi ke-${G.night}</h2><p>Semua pemain buka mata.</p><div class=card>${G.D.length?'Yang mati malam ini:<br><b>'+G.D.map(i=>esc(G.p[i].name)).join(', ')+'</b>':'<b>Tidak ada yang mati.</b>'}</div>${w?`<div class=card style="border-color:var(--blue)"><b>🏆 Game selesai — ${w=='Tidak ada'?'semua tumbang':w+' menang!'}</b></div><button class=a onclick="end('${w}')">Lihat hasil akhir</button>`:`<button class=a onclick=day()>Lanjut</button>`}`)}
 
@@ -304,7 +320,7 @@ witch:['🧙‍♀️',`Kamu punya 2 ramuan sekali pakai: 1 racun (membunuh 1 pe
 cupid:['💘',`Malam pertama, kamu memilih 1 pemain sebagai pasanganmu (Lovers). Kalian berdua saling kenal, dan kalau salah satu mati, yang lain ikut mati. Kalau tinggal kalian berdua yang hidup, kalian menang berdua.`],
 mayor:['🎖️',`Identitasmu tetap rahasia. Saat voting, cukup tunjuk orang yang kamu pilih, dan pilihanmu dihitung +1 suara untuk orang itu. Gunakan dengan bijak supaya serigala tidak menyadari siapa kamu.`],
 sick:['🤒',`Kalau kamu dimangsa serigala, malam berikutnya serigala sakit perut dan tidak bisa memangsa siapa pun. Kamu tetap mati, tapi kamu memberi warga satu malam yang aman.`],
-orphan:['🧒',`Malam pertama kamu memilih 1 pemain sebagai Parent. Kalau Parent mati, kamu mewarisi perannya, dan kemampuan barunya mulai dari awal. Kalau Parent-nya serigala atau netral, kamu menjadi Villager.`],
+orphan:['🧒',`Malam pertama kamu memilih 1 pemain sebagai Parent. Selama Parent masih hidup, kamu warga biasa dan Seer melihatmu sebagai Villager. Kalau Parent mati, kamu berubah menjadi Werewolf dan bergabung dengan tim serigala; setelah itu Seer melihatmu sebagai Wolf.`],
 killer:['🔪',`Kamu berdiri sendiri, bukan serigala dan bukan warga. Tiap malam kamu membunuh 1 pemain dan kebal dari serangan serigala. Kamu menang kalau menjadi satu-satunya yang hidup. Seer melihatmu sebagai Not Wolf.`]};
 const MV={
 civ:{n:'Civilian',team:'Civilian Team',tc:'#0095F6',t:'V',e:'🙂',d:`Kamu mendapat kata rahasia yang sama dengan sebagian besar pemain. Tiap putaran, sebutkan 1 kata petunjuk tentang katamu tanpa terlalu jelas. Cari siapa yang katanya berbeda atau tidak punya kata, lalu voting untuk menyingkirkannya. Civilian menang kalau semua Undercover dan Mr. White sudah tersingkir.`},
@@ -334,7 +350,7 @@ function plan(){const o=GAMES[ST.g],n=parseInt($('#cv').value,10);
  if(!(n>=o.min&&n<=o.max))return $('#er').textContent=`Isi jumlah pemain ${o.min}–${o.max}.`;
  ST.n=n;ST.cards=Array.from({length:n},()=>({name:null}));ST.done=0;
  if(ST.g=='ww')ST.roles=deal(n);
- else{const u=n>=4?(n>=9?2:1):0,pr=sh(WP)[0],[c,d]=Math.random()<.5?pr:[pr[1],pr[0]];ST.c=c;ST.d=d;ST.roles=sh([...Array(n-u-1).fill('civ'),...Array(u).fill('und'),'white'])}
+ else{const u=n>=4?(n>=9?2:1):0,pr=pickWP(),[c,d]=Math.random()<.5?pr:[pr[1],pr[0]];ST.c=c;ST.d=d;ST.roles=sh([...Array(n-u-1).fill('civ'),...Array(u).fill('und'),'white'])}
  showComp()}
 
 function pickCards(anim){setSt('PILIH FOTO');
@@ -346,6 +362,7 @@ function askName(i){setSt('ISI NAMA');
 function seeRole(i){const v=$('#pn').value.trim();if(!v)return $('#er').textContent='Tulis namamu dulu.';
  let nm=v,k=2;while(ST.cards.some(c=>c.name&&c.name.toLowerCase()==nm.toLowerCase()))nm=v+' '+k++;
  ST.cards[i].name=nm;const r=ST.roles[i],inf=roleInfo(ST.g,r);setSt('PERANMU');
+ if(ST.g=='mw'){R(`<div class=center style="margin-top:18px">${avatar(i,96)}<h2 style="margin:4px 0 8px">${esc(nm)}</h2>${r=='white'?`<div class=rh>${inf.logo(110)}<h1 style="margin:6px 0 10px">${inf.n}</h1></div>`:`<p style="margin:6px 0 0">Kata rahasiamu:</p><div class=big style="margin:0 0 10px">${esc(r=='civ'?ST.c:ST.d)}</div>`}<button class=a onclick="roleOk(${i})">OK, sudah paham</button></div>`);return}
  const word=ST.g=='mw'?(r=='white'?`<div class=card style="margin:6px 0"><b>Tidak ada kata untukmu.</b><p style="margin:2px 0 0">Pura-pura tahu katanya!</p></div>`:`<p style="margin:6px 0 0">Kata rahasiamu:</p><div class=big style="margin:0">${esc(r=='civ'?ST.c:ST.d)}</div>`):'';
  R(`<div class=center style="margin-top:8px">${avatar(i,64)}<h2 style="margin:2px 0">${esc(nm)}</h2><div class=rh>${inf.logo(92)}<h1 style="margin:4px 0 0">${inf.n}</h1><span class=tag style="background:${inf.tc}">${inf.team}</span></div>${word}<div class=card style="text-align:left;width:100%"><p class=rtext>${inf.d}</p></div><button class=a onclick="roleOk(${i})">OK, sudah paham</button></div>`)}
 function roleOk(i){ST.done++;pickCards(i)}
@@ -380,7 +397,7 @@ function boardBtns(){
  return `<button class=a onclick=voteDone()>Selesai vote: tampilkan semua peran lagi</button><button class=g onclick=voteUndo()>↩︎ Salah pilih? Batalkan</button>`}
 function wwBoard(keep){clearInterval(T);setSt('PAPAN MODERATOR');if(!keep){BM='roles';VT=null;VD=[]}
  R(`<h2>Papan Moderator</h2><p id=bh></p><div id=bw></div><div id=btm style="display:none"></div><p id=bs class=cntp></p><div class=pgrid id=bgrid>${G.p.map(boardCard).join('')}</div><div id=bd></div><div id=bb></div>`);bSet(BM)}
-function bSet(m){BM=m;$('#bb').innerHTML=boardBtns();$('#bh').textContent=m=='vote'?'Sesi vote: ketuk pemain yang terkena vote. Perannya akan terbuka.':'Khusus moderator. Ketuk pemain untuk menandai mati atau hidup.';$('#bw').innerHTML=m=='vote'?dangerMsg():'';
+function bSet(m){BM=m;$('#bb').innerHTML=boardBtns();$('#bh').textContent=m=='vote'?'Sesi vote: ketuk pemain yang terkena vote. Perannya akan terbuka.':'Khusus moderator. Ketuk pemain untuk menandai mati atau hidup.';$('#bw').innerHTML=m=='vote'?dangerMsg():finalMsg();
  const tb=$('#btm');if(m=='vote'){tb.style.display='';if(!tb.innerHTML)tb.innerHTML=`<div class=card style="text-align:center"><div class=big id=vtm>1:30</div><button class=g onclick=vtStart()>⏱️ Mulai timer 1:30</button></div>`}else{tb.style.display='none';tb.innerHTML='';clearInterval(T)}
  bStats()}
 function vtStart(){clearInterval(T);let t=90;const up=()=>{const x=$('#vtm');if(!x)return clearInterval(T);x.textContent=Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};up();
@@ -413,8 +430,8 @@ function nightActionStart(){G.night++;const first=G.night==1;const queue=[];
    queue.push(done=>pick(`Orphan: ${esc(o.name)}`,'Pilih 1 pemain (bukan dirinya sendiri) sebagai Parent-nya. Ini rahasia, jangan diberitahu ke pemain lain.',A().filter(x=>x.id!=o.id),1,s=>{o.parent=s[0];done()}));
   } else if(o.parent!==null&&o.role=='orphan'){
    const pr=G.p[o.parent];
-   if(pr&&!pr.alive){const nr=(RL[pr.role][1]=='V'&&pr.role!='orphan')?pr.role:'villager';o.role=nr;o.u={};
-    queue.push(inf(`Orphan: ${esc(o.name)}`,`Parent (${esc(pr.name)}) sudah mati. Peran barunya sekarang: <b>${RL[nr][0]}</b>.<p>${RL[nr][2]}</p>`));}
+   if(pr&&!pr.alive){o.role='werewolf';o.u={};
+    queue.push(inf(`Orphan: ${esc(o.name)}`,`Parent (${esc(pr.name)}) sudah mati. ${esc(o.name)} berubah menjadi <b>Werewolf</b> dan sekarang masuk tim serigala.<p>Moderator: beri tahu dia diam-diam, lalu pertemukan dia dengan serigala lain malam ini. Seer yang meramal setelah ini akan melihatnya sebagai Wolf.</p>`));}
   }
  });
  NA={atk:new Set(),kill:new Set(),guard:new Set(),link:null,bodyguardTarget:null,witchPoison:null,witchRevive:null,alphaConvert:null};
@@ -426,48 +443,58 @@ function renderNightAction(){setSt('AKSI MALAM');
  const cl=(k,list,fn)=>`<div class=grid>${list.map(p=>`<button class="g${(k=='link'?NA.link===p.id:NA[k].has(p.id))?' sel':''}" onclick="${fn}('${k}',${p.id})">${esc(p.name)}</button>`).join('')}</div>`;
  const wolves=al.filter(p=>SW.includes(p.role)),killer=al.find(p=>p.role=='killer'),guardian=al.find(p=>p.role=='guardian'),cupid=al.find(p=>p.role=='cupid');
  let pre='';
- if(wolves.length)pre+=G.sick?`<div class=card><b>🐺 Wolf: ${wolves.map(p=>esc(p.name)).join(', ')}</b><p>🤒 Sick Person dibunuh Wolf: malam ini Wolf sakit perut dan tidak bisa membunuh siapa pun.</p></div>`:`<div class=card><b>🐺 Wolf: ${wolves.map(p=>esc(p.name)).join(', ')}</b><p>Pilih korban serigala (hanya pemain selain Wolf):</p>${cl('atk',al.filter(p=>!SW.includes(p.role)),'naToggle')}</div>`;
+ if(wolves.length)pre+=G.sick?`<div class=card><b>🐺 Wolf: ${wolves.map(p=>esc(p.name)).join(', ')}</b><p>🤒 Sick Person dibunuh Wolf: kolom Wolf dikunci malam ini karena Wolf sakit perut, jadi tidak bisa memilih korban.</p><div class=grid>${al.filter(p=>!SW.includes(p.role)).map(p=>`<button class=g disabled>${esc(p.name)}</button>`).join('')}</div></div>`:`<div class=card><b>🐺 Wolf: ${wolves.map(p=>esc(p.name)).join(', ')}</b><p>Pilih korban serigala (hanya pemain selain Wolf):</p>${cl('atk',al.filter(p=>!SW.includes(p.role)),'naToggle')}</div>`;
  if(killer)pre+=`<div class=card><b>🔪 Killer: ${esc(killer.name)}</b><p>Pilih korban Killer:</p>${cl('kill',al.filter(p=>p.id!=killer.id),'naToggle')}</div>`;
  if(guardian)pre+=`<div class=card><b>🛡️ Guardian: ${esc(guardian.name)}</b><p>Pilih 1 pemain yang dilindungi (boleh diri sendiri):</p>${cl('guard',al,'naPick')}</div>`;
  if(cupid&&!G.lovers)pre+=`<div class=card><b>💘 Cupid: ${esc(cupid.name)}</b><p>Pilih 1 pemain sebagai pasangannya (Lovers). Rahasia, hanya tunjukkan ke Cupid.</p>${cl('link',al.filter(p=>p.id!=cupid.id),'naLink')}${NA.link!=null?`<p>Pasangan terpilih: <b>${esc(G.p[NA.link].name)}</b></p>`:''}</div>`;
  let extra='';
  if(bg)extra+=`<div class=card><b>🕶️ Bodyguard: ${esc(bg.name)}</b><p>Siapa yang dijaga malam ini? Kalau dia diserang, Bodyguard mati menggantikannya.</p><select onchange="NA.bodyguardTarget=this.value?parseInt(this.value):null"><option value="">Tidak menjaga</option>${al.filter(p=>p.id!=bg.id).map(p=>`<option value=${p.id} ${NA.bodyguardTarget==p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>`;
- if(witch){extra+=`<div class=card><b>🧙‍♀️ Witch: ${esc(witch.name)}</b><p>Maksimal 1 ramuan per malam.</p>`;
-  extra+=witch.u.poison?'<p>Racun sudah dipakai (sekali per game).</p>':`<p>☠️ Racun: pilih 1 pemain yang diracuni (opsional):</p><select onchange="NA.witchPoison=this.value?parseInt(this.value):null;if(NA.witchPoison!==null)NA.witchRevive=null;renderNightAction()"><option value="">Tidak</option>${al.map(p=>`<option value=${p.id} ${NA.witchPoison==p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select>`;
-  if(witch.u.revive)extra+='<p>Ramuan hidup sudah dipakai (sekali per game).</p>';
-  else{const rl=[...new Set([...dead.map(p=>p.id),...NA.atk,...NA.kill])];
-   extra+=rl.length?`<p>✨ Ramuan hidup: pilih 1 pemain yang mati untuk dihidupkan kembali (opsional):</p><select onchange="NA.witchRevive=this.value?parseInt(this.value):null;if(NA.witchRevive!==null)NA.witchPoison=null;renderNightAction()"><option value="">Tidak</option>${rl.map(i=>`<option value=${i} ${NA.witchRevive==i?'selected':''}>${esc(G.p[i].name)}${G.p[i].alive?' (target malam ini)':''}</option>`).join('')}</select>`:'<p>✨ Ramuan hidup: belum ada pemain yang mati.</p>'}
-  extra+='</div>'}
+ if(witch&&(!witch.u.poison||!witch.u.revive))extra+=`<div class=card><b>🧙‍♀️ Witch: ${esc(witch.name)}</b><p>Witch dibangunkan setelah hasil serangan keluar (sebelum pagi), jadi tidak diisi di sini. Tekan Proses Hasil Malam, lalu layar Witch muncul.</p></div>`;
  if(alpha&&!G.alphaUsed&&!G.sick)extra+=`<div class=card><b>👑 Alpha Wolf: ${esc(alpha.name)}</b><p>Kalau serigala cuma menyerang 1 orang malam ini, Alpha boleh mengubahnya jadi Werewolf alih-alih membunuhnya (sekali per game, gagal kalau korbannya dilindungi atau dijaga).</p><select onchange="NA.alphaConvert=this.value?parseInt(this.value):null"><option value="">Bunuh seperti biasa</option>${[...NA.atk].map(i=>`<option value=${i} ${NA.alphaConvert==i?'selected':''}>${esc(G.p[i].name)} — ubah jadi Werewolf</option>`).join('')}</select></div>`;
  if(seer)extra+=`<div class=card><b>🔮 Seer: ${esc(seer.name)}</b><p>Cek 1 pemain (hasil langsung tampil — hanya tunjukkan ke Seer):</p><div class=grid>${al.filter(p=>p.id!=seer.id).map(p=>`<button class=g onclick="naSeerCheck(${p.id})">${esc(p.name)}</button>`).join('')}</div></div>`;
  R(`<button class=g onclick=wwBoard()>← Batal, kembali ke papan</button><h2>Catat Aksi Malam ${G.night}</h2><p>Tiap peran yang hidup punya kolom sendiri. Pilih target di kolom masing-masing, lalu tekan Proses Hasil Malam.</p>${pre}${extra}<button class=a onclick=naProcess()>✅ Proses Hasil Malam</button>`)}
-function naSeerCheck(id){const p=G.p[id],inf=roleInfo('ww',p.role);setSt('HASIL SEER');
+function naSeerCheck(id){const p=G.p[id],inf=roleInfo('ww',p.role=='orphan'?'villager':p.role);setSt('HASIL SEER');
  R(`<h2>Hasil Seer</h2><div class="card role" style="text-align:center;border:2px solid ${inf.tc}"><div class=center>${avatar(p.id,64)}<h2 style="margin:4px 0 0">${esc(p.name)}</h2><div class=rh>${inf.logo(80)}<h1 style="margin:4px 0 0">${inf.n}</h1><span class=tag style="background:${inf.tc}">${inf.team}</span></div></div></div><p>Tunjukkan ini cuma ke Seer, lalu lanjut isi aksi malam yang lain.</p><button class=a onclick=renderNightAction()>Lanjut</button>`)}
 function naPick(k,id){const had=NA[k].has(id);NA[k].clear();if(!had)NA[k].add(id);renderNightAction()}
 function naLink(k,id){NA.link=NA.link===id?null:id;renderNightAction()}
 function naToggle(k,id){NA[k].has(id)?NA[k].delete(id):NA[k].add(id);
  if(k=='atk'&&!NA.atk.has(id)&&NA.alphaConvert===id)NA.alphaConvert=null;
  renderNightAction()}
-function naProcess(){G.D=[];const saved=[],converted=[],revived=[];let linked=null;
+let NR=null;
+function naProcess(){G.D=[];const saved=[],converted=[],revived=[],fails=[];let linked=null;
  const cp=A().find(p=>p.role=='cupid');if(cp&&NA.link!=null&&!G.lovers){G.lovers=[cp.id,NA.link];linked=G.lovers}
  if(G.sick){NA.atk.clear();NA.alphaConvert=null;G.sick=false}
  // kill() mengisi G.D otomatis (termasuk rantai Lovers & racun), jadi ringkasan pasti lengkap.
- const bg=A().find(p=>p.role=='bodyguard');
+ const bg=A().find(p=>p.role=='bodyguard'),gd=A().find(p=>p.role=='guardian');
  const protectedIds=new Set([...NA.guard]);
  if(NA.bodyguardTarget!=null&&bg)protectedIds.add(NA.bodyguardTarget);
+ const att=new Set([...[...NA.atk].filter(i=>G.p[i].role!='killer'),...NA.kill]);
+ if(gd&&NA.guard.size&&att.size&&![...NA.guard].some(i=>att.has(i)))fails.push('🛡️ Guardian gagal melindungi warga desa karena salah pilih.');
+ if(bg&&NA.bodyguardTarget!=null&&att.size&&!att.has(NA.bodyguardTarget))fails.push('🕶️ Bodyguard gagal menjaga warga desa karena salah pilih.');
  const bgHit=id=>{if(NA.bodyguardTarget===id&&bg)kill(bg.id,'bg',G.p[id].name)};
  NA.atk.forEach(id=>{if(!G.p[id].alive||G.p[id].role=='killer')return;
-  if(id===NA.alphaConvert){if(!protectedIds.has(id)&&!G.alphaUsed){G.p[id].role='werewolf';G.p[id].u={};G.alphaUsed=true;converted.push(id)}return}
+  if(id===NA.alphaConvert){if(!protectedIds.has(id)&&!G.alphaUsed){G.p[id].role='werewolf';G.p[id].u={};G.alphaUsed=true;converted.push(id)}else if(protectedIds.has(id))fails.push('👑 Alpha Wolf gagal mengubah korbannya karena korbannya dilindungi.');return}
   if(protectedIds.has(id)){bgHit(id);saved.push(id);return}
   kill(id,'wolf')});
  NA.kill.forEach(id=>{if(!G.p[id].alive)return;if(protectedIds.has(id)){bgHit(id);saved.push(id);return}kill(id,'kill')});
- const witch=A().find(p=>p.role=='witch')||G.p.find(p=>p.role=='witch'&&G.D.includes(p.id));
- if(NA.witchPoison!=null&&G.p[NA.witchPoison].alive&&!NA.guard.has(NA.witchPoison)){kill(NA.witchPoison,'witch');if(witch)witch.u.poison=true}
+ NR={saved,converted,revived,fails,linked};
+ // Witch dibangunkan SETELAH hasil serangan keluar dan SEBELUM pagi.
+ const w=A().find(p=>p.role=='witch')||G.p.find(p=>p.role=='witch'&&G.D.includes(p.id));
+ if(w&&(!w.u.poison||!w.u.revive))return naWitch(w.id);
+ naFinish()}
+function naWitch(wid){setSt('WITCH BANGUN');const w=G.p[wid],tn=G.D,dd=[...tn,...G.p.filter(p=>!p.alive&&!tn.includes(p.id)).map(p=>p.id)];
+ let h=`<h2>🧙‍♀️ Witch bangun</h2><p>Moderator: bangunkan Witch (<b>${esc(w.name)}</b>), pemain lain tetap tutup mata. Tunjukkan layar ini hanya ke Witch. Maksimal 1 ramuan per malam.</p><div class=card><b>Meninggal malam ini:</b><p>${tn.length?tn.map(i=>esc(G.p[i].name)).join(', '):'Tidak ada yang meninggal malam ini.'}</p></div>`;
+ h+=w.u.revive?'<p>Ramuan hidup sudah dipakai (sekali per game).</p>':(dd.length?`<div class=card><p>✨ Ramuan hidup: hidupkan kembali 1 pemain yang mati (opsional):</p><select onchange="NA.witchRevive=this.value?parseInt(this.value):null;if(NA.witchRevive!==null)NA.witchPoison=null;naWitch(${wid})"><option value="">Tidak</option>${dd.map(i=>`<option value=${i} ${NA.witchRevive==i?'selected':''}>${esc(G.p[i].name)}${tn.includes(i)?' (mati malam ini)':''}</option>`).join('')}</select></div>`:'<p>✨ Ramuan hidup: belum ada pemain yang mati.</p>');
+ h+=w.u.poison?'<p>Racun sudah dipakai (sekali per game).</p>':`<div class=card><p>☠️ Racun: pilih 1 pemain yang diracuni (opsional):</p><select onchange="NA.witchPoison=this.value?parseInt(this.value):null;if(NA.witchPoison!==null)NA.witchRevive=null;naWitch(${wid})"><option value="">Tidak</option>${A().map(p=>`<option value=${p.id} ${NA.witchPoison==p.id?'selected':''}>${esc(p.name)}</option>`).join('')}</select></div>`;
+ R(h+`<button class=a onclick="naWitchDone(${wid})">Witch selesai, tidur lagi</button>`)}
+function naWitchDone(wid){const w=G.p[wid];
+ if(NA.witchPoison!=null&&G.p[NA.witchPoison].alive){if(NA.guard.has(NA.witchPoison))NR.fails.push('🧙‍♀️ Racun Witch gagal karena targetnya dilindungi Guardian.');else{kill(NA.witchPoison,'witch');w.u.poison=true}}
  if(NA.witchRevive!=null){const t=G.p[NA.witchRevive];
-  if(!t.alive){t.alive=true;t.death=null;G.D=G.D.filter(x=>x!=t.id);G.hq=G.hq.filter(x=>x!=t.id);if(t.role=='sick'){G.sick=false;G.lock=false}revived.push(t.id);if(witch)witch.u.revive=true}}
- NA=null;
+  if(!t.alive){t.alive=true;t.death=null;G.D=G.D.filter(x=>x!=t.id);G.hq=G.hq.filter(x=>x!=t.id);if(t.role=='sick'){G.sick=false;G.lock=false}NR.revived.push(t.id);w.u.revive=true}}
+ naFinish()}
+function naFinish(){const {saved,converted,revived,fails,linked}=NR;NA=null;NR=null;
  const hq=G.hq.length>0,nm=a=>a.map(i=>esc(G.p[i].name)).join(', ');
- R(`<h2>Hasil Malam</h2><div class=card>${G.D.length?'<b>Meninggal malam ini:</b>'+deathRows(G.D):'<b>Tidak ada yang meninggal.</b>'}${saved.length?'<br>Diserang tapi masih hidup (terlindungi): <b>'+nm(saved)+'</b>':''}${revived.length?'<br>✨ Dihidupkan kembali oleh Witch: <b>'+nm(revived)+'</b>':''}${converted.length?'<br>⚠️ Diam-diam diubah Alpha jadi Werewolf (beri tahu orangnya sendiri-sendiri, jangan di depan yang lain): <b>'+nm(converted)+'</b>':''}${linked?'<br>💘 Lovers terpasang (rahasia, beri tahu mereka berdua saja): <b>'+linked.map(i=>esc(G.p[i].name)).join(' ❤ ')+'</b>':''}</div>${hq?`<div class=card style="border-color:var(--red)">🔫 Hunter mati. Dia boleh menembak 1 pemain sekarang, setelah pagi hari dan sebelum voting.</div><button class=a onclick="hunters(()=>wwBoard())">🔫 Hunter menembak</button>`:`<button class=a onclick=wwBoard()>Lanjut ke papan</button>`}`)}
+ R(`<h2>Hasil Malam</h2><div class=card>${G.D.length?'<b>Meninggal malam ini:</b>'+deathRows(G.D):'<b>Tidak ada yang meninggal.</b>'}${saved.length?'<br>Diserang tapi masih hidup (terlindungi): <b>'+nm(saved)+'</b>':''}${fails.length?'<br>'+fails.map(f=>'<b>'+f+'</b>').join('<br>'):''}${revived.length?'<br>✨ Dihidupkan kembali oleh Witch: <b>'+nm(revived)+'</b>':''}${converted.length?'<br>⚠️ Diam-diam diubah Alpha jadi Werewolf (beri tahu orangnya sendiri-sendiri, jangan di depan yang lain): <b>'+nm(converted)+'</b>':''}${linked?'<br>💘 Lovers terpasang (rahasia, beri tahu mereka berdua saja): <b>'+linked.map(i=>esc(G.p[i].name)).join(' ❤ ')+'</b>':''}</div>${hq?`<div class=card style="border-color:var(--red)">🔫 Hunter mati. Dia boleh menembak 1 pemain sekarang, setelah pagi hari dan sebelum voting.</div><button class=a onclick="hunters(()=>wwBoard())">🔫 Hunter menembak</button>`:`<button class=a onclick=wwBoard()>Lanjut ke papan</button>`}`)}
 
 /* tombol "Main lagi" dan mulai game memakai alur baru */
 wwSetup=()=>startGame('ww');mwSetup=()=>startGame('mw');
@@ -551,13 +578,13 @@ witch:'You have 2 single-use potions: 1 poison (kills 1 player) and 1 revive pot
 cupid:'On the first night, you pick 1 player as your partner (Lovers). You both know each other, and if one dies, the other dies too. If only the two of you remain, you both win.',
 mayor:'Your identity stays secret. When voting, just point at the person you choose, and your choice counts as +1 vote for them. Use it wisely so the wolves do not figure out who you are.',
 sick:'If wolves eat you, the next night the wolves get a stomachache and cannot eat anyone. You still die, but you give the village one safe night.',
-orphan:'On the first night you pick 1 player as your Parent. If the Parent dies, you inherit their role, and the new abilities start fresh. If the Parent is a wolf or neutral, you become a Villager.',
+orphan:'On the first night you pick 1 player as your Parent. While the Parent is alive, the Seer sees you as a Villager. If the Parent dies, you turn into a Werewolf and join the wolf team; after that the Seer sees you as a Wolf.',
 killer:'You stand alone, neither wolf nor villager. Each night you kill 1 player and are immune to wolf attacks. You win by being the last one alive. The Seer sees you as Not Wolf.'};
-const RLEN={werewolf:'Wake up with the other wolves and agree on 1 victim each night.',alpha:'A wolf. Once per game may turn the victim into a Werewolf (the victim does not die). Fails if the victim is protected, and the ability is not used.',cub:'A wolf. If you die, the wolves kill 2 people the next night.',minion:'Knows who the wolves are, but they do not know you. Wins with the wolves. The Seer sees you as Not Wolf.',villager:'No ability. Join the discussion and voting.',seer:'Each night check 1 player: Wolf or Not Wolf.',guardian:'Each night protect 1 player from attacks (yourself allowed, the same person every night allowed).',bodyguard:'Each night guard 1 player (not yourself). If they are attacked, you die in their place.',hunter:'If you die for any reason, you shoot 1 player who dies with you. If you die at night, you shoot after the morning, before voting.',witch:'Has 1 poison (kills 1 player) and 1 revive potion (brings 1 dead player back). Maximum 1 potion per night.',cupid:'On the first night pick 1 player as your partner (Lovers). If one dies, the other dies too.',mayor:'When voting, just point at the person you choose and it counts as +1 vote for them. Your identity stays secret.',sick:'If wolves kill you, the next night the wolves cannot kill anyone (stomachache).',orphan:'On the first night pick 1 Parent. If the Parent dies, you inherit their role with fresh abilities. If the Parent is a wolf or neutral, you become a Villager.',killer:'Each night kill 1 player and be immune to wolf attacks. Wins by being the last one alive. The Seer sees you as Not Wolf.'};
+const RLEN={werewolf:'Wake up with the other wolves and agree on 1 victim each night.',alpha:'A wolf. Once per game may turn the victim into a Werewolf (the victim does not die). Fails if the victim is protected, and the ability is not used.',cub:'A wolf. If you die, the wolves kill 2 people the next night.',minion:'Knows who the wolves are, but they do not know you. Wins with the wolves. The Seer sees you as Not Wolf.',villager:'No ability. Join the discussion and voting.',seer:'Each night check 1 player: Wolf or Not Wolf.',guardian:'Each night protect 1 player from attacks (yourself allowed, the same person every night allowed).',bodyguard:'Each night guard 1 player (not yourself). If they are attacked, you die in their place.',hunter:'If you die for any reason, you shoot 1 player who dies with you. If you die at night, you shoot after the morning, before voting.',witch:'Has 1 poison (kills 1 player) and 1 revive potion (brings 1 dead player back). Maximum 1 potion per night.',cupid:'On the first night pick 1 player as your partner (Lovers). If one dies, the other dies too.',mayor:'When voting, just point at the person you choose and it counts as +1 vote for them. Your identity stays secret.',sick:'If wolves kill you, the next night the wolves cannot kill anyone (stomachache).',orphan:'On the first night pick 1 Parent. While the Parent lives, the Seer sees you as a Villager. If the Parent dies, you turn into a Werewolf and join the wolf team.',killer:'Each night kill 1 player and be immune to wolf attacks. Wins by being the last one alive. The Seer sees you as Not Wolf.'};
 const MVEN={civ:'You get the same secret word as most players. Each round, say 1 clue word about your word without being too obvious. Find out who has a different word or no word, then vote to eliminate them. Civilians win when all Undercover and Mr. White are eliminated.',
 und:'You get a word that is similar to but different from the Civilians\' word. Blend in: give clues that fit your word without raising suspicion, and guess the majority word from the other players\' clues. You win together with Mr. White when Civilians no longer outnumber you.',
 white:'You get no word at all. Listen to the other players\' clues, then pretend to know the word. If you are voted out, you get 1 chance to guess the Civilian word. A correct guess means you win. You also win with the Undercover when Civilians no longer outnumber you.'};
-const WPEN=[['Coffee','Tea'],['Cat','Dog'],['Meatball soup','Chicken noodles'],['Motorbike','Bicycle'],['Beach','Swimming pool'],['Doctor','Nurse'],['Fried rice','Fried noodles'],['Guitar','Piano'],['River','Lake'],['Shoes','Sandals'],['Rain','Snow'],['Bread','Cake'],['Pencil','Pen'],['Cinema','Theater']];
+const WPEN=[['Coffee','Tea'],['Cat','Dog'],['Meatball soup','Chicken noodles'],['Motorbike','Bicycle'],['Beach','Swimming pool'],['Doctor','Nurse'],['Fried rice','Fried noodles'],['Guitar','Piano'],['River','Lake'],['Shoes','Sandals'],['Rain','Snow'],['Bread','Cake'],['Pencil','Pen'],['Cinema','Theater'],['Car','Bus'],['Apple','Orange'],['Soap','Shampoo'],['Mountain','Hill'],['Airplane','Helicopter'],['Teacher','Lecturer'],['Ice cream','Iced tea'],['Satay','Rendang'],['Jacket','Sweater'],['Chair','Sofa'],['Phone','Laptop'],['Moon','Sun'],['Train','Subway'],['Cow','Goat'],['Chicken','Duck'],['Fish','Shrimp'],['Banana','Mango'],['Milk','Yogurt'],['School','Campus'],['Hospital','Health center'],['Police','Security guard'],['King','President'],['Book','Magazine'],['Television','Radio'],['Umbrella','Raincoat'],['Spoon','Fork'],['Plate','Bowl'],['Market','Supermarket'],['Pizza','Burger'],['Tofu','Tempeh'],['Lion','Tiger'],['Football','Futsal'],['Birthday','Wedding'],['Shallot','Garlic'],['Glass','Cup'],['Hotel','Villa']];
 (()=>{const fs=t=>t.split('. ')[0].replace(/\.$/,'')+'.';
  Object.keys(RVEN).forEach(k=>{if(RV[k]){EN[RV[k][1]]=RVEN[k];EN[fs(RV[k][1])]=fs(RVEN[k])}if(RL[k])EN[RL[k][2]]=RLEN[k]});
  ['civ','und','white'].forEach(k=>{EN[MV[k].d]=MVEN[k];EN[fs(MV[k].d)]=fs(MVEN[k])});
