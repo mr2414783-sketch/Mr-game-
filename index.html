@@ -110,6 +110,10 @@ button.bigb{padding:20px 16px;font-size:18px;border-radius:18px;margin:10px 0}
     </div>
     <div class="gate"><div class="label">STATUS</div><div class="val" id="statusVal">PILIH GAME</div></div>
   </div>
+  <div id="installBar" style="display:none;padding:9px 16px;background:rgba(0,149,246,.08);border-bottom:1px solid var(--line);align-items:center;justify-content:space-between;gap:10px">
+    <span style="font-size:12px;font-weight:700;color:var(--blue-dim)">📲 Pasang app ini ke Home Screen biar gampang dibuka lagi</span>
+    <button id="installBtn" style="width:auto;margin:0;padding:8px 14px;font-size:12px;flex-shrink:0;background:var(--blue)">Pasang</button>
+  </div>
   <div id="app"></div>
 </div>
 <script>
@@ -383,6 +387,11 @@ function bTap(id){const p=G.p[id],c=$('#bc'+id);
 /* ---------- Papan moderator: Catat Aksi Malam (tombol per peran, agar host awam gampang) ---------- */
 let NA=null;
 function nightActionStart(){G.night++;const first=G.night==1;const queue=[];
+ // Cupid: cuma muncul kalau perannya ada di antara pemain hidup, dan cuma malam pertama (pairing sekali per game).
+ if(first&&!G.lovers){A().filter(p=>p.role=='cupid').forEach(c=>{
+  queue.push(done=>pick(`Cupid: ${esc(c.name)}`,'Pilih 1 pemain (bukan dirinya sendiri) sebagai pasangannya (Lovers). Ini rahasia. Kalau salah satu mati, yang lain ikut mati.',A().filter(x=>x.id!=c.id),1,s=>{G.lovers=[c.id,s[0]];
+   inf('Lovers',`<b>${esc(c.name)}</b> dan <b>${esc(G.p[s[0]].name)}</b> sekarang jadi pasangan (Lovers). Beri tahu mereka berdua secara rahasia, jangan di depan pemain lain.`)(done)}));
+ });}
  // Orphan: pilih Parent di malam pertama, atau warisi peran kalau Parent-nya sudah mati.
  A().filter(p=>p.role=='orphan').forEach(o=>{
   if(first&&o.parent===null){
@@ -415,8 +424,8 @@ function renderNightAction(){setSt('AKSI MALAM');
  if(seer)extra+=`<div class=card><b>🔮 Seer: ${esc(seer.name)}</b><p>Cek 1 pemain (hasil langsung tampil — hanya tunjukkan ke Seer):</p><div class=grid>${al.filter(p=>p.id!=seer.id).map(p=>`<button class=g onclick="naSeerCheck(${p.id})">${esc(p.name)}</button>`).join('')}</div></div>`;
  if(ghost&&dead.length)extra+=`<div class=card><b>👻 Ghost Whisperer: ${esc(ghost.name)}</b><p>Lihat peran pemain yang sudah mati (hanya tunjukkan ke Ghost Whisperer):</p><div class=grid>${dead.map(p=>`<button class=g onclick="naGhostPeek(${p.id})">${esc(p.name)}</button>`).join('')}</div></div>`;
  R(`<button class=g onclick=wwBoard()>← Batal, kembali ke papan</button><h2>Catat Aksi Malam ${G.night}</h2><p>Tandai <b>🛡️ Lindungi</b>, <b>🐺 Serang</b>, atau <b>⛓️ Tahan</b> (Jailer: kebal + kemampuannya nonaktif malam ini) buat tiap pemain, lalu isi peran spesial di bawah kalau ada yang hidup.</p><div class=card>${rows}</div>${extra}<button class=a onclick=naProcess()>✅ Proses Hasil Malam</button>`)}
-function naSeerCheck(id){const p=G.p[id];setSt('HASIL SEER');
- R(`<h2>Hasil Seer</h2><div class=card><b>${esc(p.name)}</b> adalah <b>${SW.includes(p.role)?'Wolf':'Not Wolf'}</b>.</div><p>Tunjukkan ini cuma ke Seer, lalu lanjut isi aksi malam yang lain.</p><button class=a onclick=renderNightAction()>Lanjut</button>`)}
+function naSeerCheck(id){const p=G.p[id],inf=roleInfo('ww',p.role);setSt('HASIL SEER');
+ R(`<h2>Hasil Seer</h2><div class="card role" style="text-align:center;border:2px solid ${inf.tc}"><div class=center>${avatar(p.id,64)}<h2 style="margin:4px 0 0">${esc(p.name)}</h2><div class=rh>${inf.logo(80)}<h1 style="margin:4px 0 0">${inf.n}</h1><span class=tag style="background:${inf.tc}">${inf.team}</span></div></div></div><p>Tunjukkan ini cuma ke Seer, lalu lanjut isi aksi malam yang lain.</p><button class=a onclick=renderNightAction()>Lanjut</button>`)}
 function naGhostPeek(id){const p=G.p[id];setSt('HASIL GHOST');
  R(`<h2>Hasil Ghost Whisperer</h2><div class=card><b>${esc(p.name)}</b> adalah <b>${RL[p.role][0]}</b>.</div><p>Tunjukkan ini cuma ke Ghost Whisperer, lalu lanjut isi aksi malam yang lain.</p><button class=a onclick=renderNightAction()>Lanjut</button>`)}
 function naToggle(k,id){NA[k].has(id)?NA[k].delete(id):NA[k].add(id);
@@ -445,6 +454,23 @@ wwSetup=()=>startGame('ww');mwSetup=()=>startGame('mw');
 
 Menu();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+
+/* ---------- Pasang ke Home Screen (PWA install) ---------- */
+let DIP=null;
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;
+const isIos=()=>/iphone|ipad|ipod/i.test(navigator.userAgent);
+function showInstallBar(){if(isStandalone())return;const b=$('#installBar');if(b)b.style.display='flex'}
+function hideInstallBar(){const b=$('#installBar');if(b)b.style.display='none'}
+addEventListener('beforeinstallprompt',e=>{e.preventDefault();DIP=e;showInstallBar()});
+addEventListener('appinstalled',hideInstallBar);
+if(!isStandalone()&&isIos())showInstallBar();
+const installBtnEl=$('#installBtn');
+if(installBtnEl)installBtnEl.onclick=async()=>{
+ if(DIP){DIP.prompt();await DIP.userChoice;DIP=null;hideInstallBar();return}
+ if(isIos()){const d=document.createElement('div');d.className='qd';
+  d.innerHTML='<div class=qbox><h2>📲 Pasang di iPhone/iPad</h2><p>Tap ikon <b>Share</b> (kotak dengan panah ke atas) di Safari, lalu pilih <b>"Add to Home Screen"</b>.</p><button class=a id=okb>Mengerti</button></div>';
+  document.body.appendChild(d);$('#okb').onclick=()=>d.remove()}
+};
 </script>
 </body>
 </html>
