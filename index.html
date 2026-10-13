@@ -357,6 +357,94 @@ mayor:['👴',`Identitasmu tetap rahasia. Saat voting, cukup tunjuk orang yang k
 sick:['🤒',`Kalau kamu dimangsa serigala, malam berikutnya serigala sakit perut dan tidak bisa memangsa siapa pun. Kamu tetap mati, tapi kamu memberi warga satu malam yang aman.`],
 orphan:['🧒',`Malam pertama kamu memilih 1 pemain sebagai Parent. Selama Parent masih hidup, kamu warga biasa dan Seer melihatmu sebagai Villager. Kalau Parent mati, kamu berubah menjadi Werewolf dan bergabung dengan tim serigala; setelah itu Seer melihatmu sebagai Wolf.`],
 killer:['🔪',`Kamu berdiri sendiri, bukan serigala dan bukan warga. Tiap malam kamu membunuh 1 pemain dan kebal dari serangan serigala. Kamu menang kalau menjadi satu-satunya yang hidup. Seer melihatmu sebagai Not Wolf.`]};
+/* ---------- Peran tambahan (dari daftar video): Main + Advanced ----------
+   Tidak mengubah peran/mekanik lama. Peran baru berjalan MANUAL (moderator yang menjalankan efeknya).
+   Format: [kunci, nama, tim(V/W/N), emoji, deskripsi ID, deskripsi EN] */
+const NEWR=[
+/* Main - Village */
+['vigilante','Vigilante','V','🤠',`Menembak pemain yang kamu curigai pada malam hari. Hati-hati, kalau salah sasaran warga tak bersalah yang mati.`,`Shoot a player you suspect during the night. Careful: if you hit the wrong target, an innocent villager dies.`],
+['jailer','Jailer','V','⛓️',`Malam hari memenjarakan 1 pemain, lalu siang hari boleh mengeksekusi tahananmu.`,`At night jail 1 player, then during the day you may execute your prisoner.`],
+['redlady','Red Lady','V','💃',`Tiap malam mengalihkan perhatian 1 pemain sehingga kemampuannya tidak berjalan malam itu.`,`Each night distract 1 player so their ability does not work that night.`],
+['priest','Priest','V','⛪',`Memeriksa kuburan pemain yang sudah mati untuk mengetahui perannya.`,`Check the grave of a dead player to learn their role.`],
+['auraseer','Aura Seer','V','🌈',`Tiap malam melihat aura 1 pemain lain (baik atau jahat).`,`Each night see the aura of 1 other player (good or evil).`],
+['detective','Detective','V','🕵️',`Tiap malam menyelidiki 1 pemain untuk mengetahui siapa saja yang mengunjunginya malam itu.`,`Each night investigate 1 player to learn who visited them that night.`],
+['scarecrow','Scarecrow','V','🌾',`Peran khusus warga desa yang menakut-nakuti penyerang. Cara kerjanya diatur moderator.`,`A special village role that scares off attackers. The moderator decides how it works.`],
+['medium','Medium','V','👻',`Berkomunikasi dengan pemain yang sudah meninggal.`,`Communicate with players who have died.`],
+['witch','Witch','V','🧙‍♀️',`Memanipulasi target pemain di malam hari, misalnya mengganti target kemampuan pemain lain.`,`Manipulate players' targets at night, for example by changing the target of another player's ability.`],
+['beasthunter','Beast Hunter','V','🪤',`Memasang perangkap pelindung. Penyerang yang datang ke pemain yang dijaga terkena perangkap.`,`Set a protective trap. Attackers who come for the guarded player get caught in it.`],
+['loudmouth','Loudmouth','V','📢',`Kalau kamu mati, nama semua pemain yang memilihmu diumumkan ke semua orang.`,`When you die, everyone who voted for you is announced to all players.`],
+['cursed','Cursed','V','😈',`Warga biasa yang berubah menjadi werewolf kalau diserang serigala.`,`An ordinary villager who turns into a werewolf if attacked by the wolves.`],
+/* Main - Wolves */
+['nightmare','Nightmare Werewolf','W','😱',`Serigala yang memberi mimpi buruk pada 1 target sehingga dia tidak bisa memakai kemampuan malam itu.`,`A wolf that gives 1 target a nightmare so they cannot use their ability that night.`],
+['wolfshaman','Wolf Shaman','W','🪘',`Serigala dukun yang memanipulasi hasil investigasi pemain lain.`,`A shaman wolf that manipulates the results of other players' investigations.`],
+['shadowwolf','Shadow Wolf','W','🌑',`Serigala yang beraksi secara sembunyi-sembunyi sehingga sulit dideteksi.`,`A wolf that acts in secret, making it hard to detect.`],
+['guardianwolf','Guardian Wolf','W','🐕',`Serigala yang melindungi sesama anggota kawanan.`,`A wolf that protects fellow pack members.`],
+['wolfseer','Wolf Seer','W','👁️',`Peramal dari kubu werewolf yang bisa mengetahui peran pemain lain.`,`A seer from the werewolf side who can learn other players' roles.`],
+['partywolf','Party Wolf','W','🎉',`Anggota kawanan dengan kemampuan bertema pesta.`,`A pack member with party-themed abilities.`],
+/* Main - Neutral */
+['fool','Fool','N','🤡',`Menang kalau berhasil membuat desa menggantung (mengeksekusi) dirimu sendiri.`,`Wins if you trick the village into hanging (executing) you.`],
+['headhunter','Headhunter','N','🎯',`Punya target pemain tertentu yang harus digantung desa. Menang kalau targetmu tereksekusi.`,`Has a specific target that the village must hang. Wins if your target is executed.`],
+['arsonist','Arsonist','N','🔥',`Menyiram bensin ke pemain, lalu membakar semua yang tersiram sekaligus.`,`Douses players in gasoline, then burns all doused players at once.`],
+['corruptor','Corruptor','N','💰',`Mengorupsi pemain lain sehingga kemampuan atau kesetiaannya rusak.`,`Corrupts other players, ruining their ability or loyalty.`],
+['bandit','Bandit','N','🦹',`Beraksi sendiri untuk mencapai tujuan pribadinya.`,`Acts alone to reach a personal goal.`],
+/* Advanced - Town */
+['butcher','Butcher','V','🥩',`Peran warga dengan karakteristik khusus. Efeknya diatur moderator.`,`A village role with special traits. The moderator decides its effect.`],
+['toughguy','Tough Guy','V','💪',`Mampu bertahan dari serangan pertama di malam hari.`,`Can survive the first attack at night.`],
+['seerapprentice','Seer Apprentice','V','🧿',`Murid yang mewarisi peran Seer utama kalau Seer mati.`,`An apprentice who inherits the main Seer's role if the Seer dies.`],
+['gunner','Gunner','V','🔫',`Menembak pemain yang dicurigai secara langsung di siang hari. Pelurunya terbatas.`,`Shoots a suspected player directly during the day. Bullets are limited.`],
+['bully','Bully','V','😤',`Peran warga dengan kemampuan intervensi sosial.`,`A village role with a social intervention ability.`],
+['judge','Judge','V','⚖️',`Mempengaruhi hasil voting di pengadilan siang hari.`,`Influences the outcome of the daytime trial vote.`],
+['analyst','Analyst','V','📊',`Menganalisis pemain untuk mendapatkan petunjuk.`,`Analyzes players to gain clues.`],
+['gambler','Gambler','V','🎲',`Menebak peran pemain lain. Tebakan yang benar memberi keuntungan.`,`Guesses other players' roles. A correct guess gives an advantage.`],
+['baker','Baker','V','🍞',`Membagikan roti untuk mendukung mekanika bertahan hidup.`,`Hands out bread to support the survival mechanic.`],
+['violinist','Violinist','V','🎻',`Peran dengan mekanika magis atau ritual lewat permainan biola.`,`A role with a magical or ritual mechanic through violin music.`],
+['ritualist','Ritualist','V','🪔',`Peran dengan mekanika magis atau ritual.`,`A role with a magical or ritual mechanic.`],
+['conjuror','Conjuror','V','🪄',`Peran dengan mekanika magis atau ritual.`,`A role with a magical or ritual mechanic.`],
+['ferryman','Ferryman','V','⛵',`Peran dengan mekanika magis atau ritual yang berkaitan dengan roh.`,`A role with a magical or ritual mechanic related to spirits.`],
+['grumpygrandma','Grumpy Grandma','V','👵',`Peran pengawasan: membungkam atau mengusir 1 pemain dari diskusi.`,`A supervision role: silences or shoos 1 player out of the discussion.`],
+['preacher','Preacher','V','📖',`Peran pengawasan atau manipulasi peran lewat khotbah.`,`A supervision or role-manipulation role through sermons.`],
+['forger','Forger','V','🖋️',`Peran manipulasi: memalsukan sesuatu untuk menipu pengamat.`,`A manipulation role: forges something to fool observers.`],
+['astronomer','Astronomer','V','🔭',`Peran pengawasan yang membaca petunjuk dari langit malam.`,`A supervision role that reads clues from the night sky.`],
+['pumpkindealer','Pumpkin Dealer','V','🎃',`Peran manipulasi yang membagikan labu dengan efek khusus.`,`A manipulation role that hands out pumpkins with special effects.`],
+['flagger','Flagger','V','🚩',`Peran pendukung dinamika permainan dengan menandai pemain.`,`A support role that flags players to shape the game.`],
+['avenger','Avenger','V','🗡️',`Peran pembalas: kalau mati, kamu bisa membalas dendam.`,`A revenge role: if you die, you can take revenge.`],
+['bellringer','Bell-ringer','V','🔔',`Membunyikan lonceng sebagai tanda peringatan untuk warga.`,`Rings a bell as a warning signal for the village.`],
+['pacifist','Pacifist','V','🕊️',`Menghentikan eksekusi: bisa membatalkan voting di siang hari.`,`Stops executions: can cancel the vote during the day.`],
+['instigator','Instigator','V','🗯️',`Memprovokasi pemain lain untuk mengubah dinamika diskusi dan voting.`,`Provokes other players to change the dynamics of discussion and voting.`],
+/* Advanced - Werewolves */
+['werewolffan','Werewolf Fan','W','🐾',`Pendukung kubu serigala yang menyusup ke antara warga.`,`A supporter of the wolf side who infiltrates the villagers.`],
+['splitwolf','Split Wolf','W','🪓',`Anggota kawanan yang bisa membagi serangan ke lebih dari satu target.`,`A pack member who can split the attack across more than one target.`],
+['kittenwolf','Kitten Wolf','W','🐱',`Anggota kawanan dengan kemampuan variatif ala anak kucing.`,`A pack member with varied kitten-style abilities.`],
+['wolfluencer','Wolfluencer','W','🤳',`Serigala yang mempengaruhi pemain lain agar mengikuti arahannya.`,`A wolf that influences other players to follow its lead.`],
+['candywolf','Candy Wolf','W','🍬',`Anggota kawanan dengan kemampuan permen yang memikat korban.`,`A pack member with a candy ability that lures victims.`],
+['voodoowolf','Voodoo Werewolf','W','🪆',`Serigala yang memakai boneka voodoo untuk mengutuk target.`,`A wolf that uses a voodoo doll to curse a target.`],
+['stormwolf','Storm Wolf','W','⛈️',`Anggota kawanan dengan kemampuan badai yang mengacaukan malam.`,`A pack member with a storm ability that disrupts the night.`],
+['wolftrickster','Wolf Trickster','W','🃏',`Serigala penipu yang memanipulasi informasi warga.`,`A trickster wolf that manipulates the villagers' information.`],
+['wolfscribe','Wolf Scribe','W','📜',`Serigala juru tulis yang menyalin atau mencatat informasi.`,`A scribe wolf that copies or records information.`],
+['werewolfberserk','Werewolf Berserk','W','😡',`Serigala mengamuk dengan serangan kuat dan efek manipulasi.`,`A raging wolf with powerful attacks and manipulation effects.`],
+['toxicwolf','Toxic Wolf','W','☠️',`Serigala beracun yang meracuni korban.`,`A toxic wolf that poisons its victims.`],
+['jellywolf','Jelly Wolf','W','🍮',`Serigala jeli dengan kemampuan khusus yang unik.`,`A jelly wolf with a unique special ability.`],
+['stubbornwolf','Stubborn Werewolf','W','🪨',`Serigala keras kepala yang sulit disingkirkan.`,`A stubborn wolf that is hard to get rid of.`],
+['wolfsummoner','Wolf Summoner','W','🔮',`Serigala pemanggil dengan kemampuan magis untuk memanggil bantuan.`,`A summoner wolf with a magical ability to call for help.`],
+['ghostwolf','Ghost Wolf','W','👤',`Serigala hantu dengan kemampuan magis dan khusus.`,`A ghost wolf with magical and special abilities.`],
+['sorcerer','Sorcerer','W','🧙',`Penyihir dari kubu serigala dengan kemampuan magis.`,`A sorcerer on the wolf side with magical abilities.`],
+['blindwolf','Blind Werewolf','W','🕶️',`Serigala buta dengan efek kekacauan.`,`A blind wolf with chaos effects.`],
+['fireworkwolf','Firework Wolf','W','🎆',`Serigala kembang api yang menciptakan kekacauan.`,`A firework wolf that creates chaos.`],
+['anarchist','Anarchist','W','🏴',`Pembuat kekacauan dari kubu serigala.`,`A chaos-maker on the wolf side.`],
+/* Advanced - Independent */
+['cannibal','Cannibal','N','🍖',`Memakan pemain mati untuk menyerap kemampuan.`,`Eats dead players to absorb their abilities.`],
+['evildetective','Evil Detective','N','🔎',`Detektif yang berpihak pada kubu kejahatan.`,`A detective who sides with evil.`],
+['headlesshorseman','Headless Horseman','N','🐎',`Peran independen dengan trik destruktif.`,`An independent role with destructive tricks.`],
+['alchemist','Alchemist','N','⚗️',`Peran independen yang meracik ramuan dengan efek destruktif.`,`An independent role that brews potions with destructive effects.`],
+['siren','Siren','N','🧜‍♀️',`Peran independen yang memikat pemain dengan nyanyian.`,`An independent role that lures players with song.`],
+['illusionist','Illusionist','N','🎩',`Peran independen yang menciptakan ilusi untuk mengecoh pemain.`,`An independent role that creates illusions to fool players.`],
+['shapeshifter','Shapeshifter','N','🎭',`Peran independen yang bisa berubah bentuk menjadi peran lain.`,`An independent role that can change shape into another role.`],
+['dracula','Dracula','N','🧛',`Pemimpin vampir yang merekrut pemain lain.`,`The vampire leader who recruits other players.`],
+['zombie','Zombie','N','🧟',`Peran khusus yang bisa bangkit atau menginfeksi pemain lain.`,`A special role that can rise again or infect other players.`]
+];
+const NEWK=NEWR.map(r=>r[0]);
+NEWR.forEach(([k,n,t,e,d])=>{RL[k]=[n,t,d];RV[k]=[e,d];if(t=='W')SW.push(k)});
+
 const MV={
 civ:{n:'Civilian',team:'Civilian Team',tc:'#0095F6',t:'V',e:'🙂',d:`Kamu mendapat kata rahasia yang sama dengan sebagian besar pemain. Tiap putaran, sebutkan 1 kata petunjuk tentang katamu tanpa terlalu jelas. Cari siapa yang katanya berbeda atau tidak punya kata, lalu voting untuk menyingkirkannya. Civilian menang kalau semua Undercover dan Mr. White sudah tersingkir.`},
 und:{n:'Undercover',team:'Undercover Team',tc:'#ED4956',t:'W',e:'🕵️',d:`Kamu mendapat kata yang mirip tapi berbeda dari kata Civilian. Berbaurlah: beri petunjuk yang cocok dengan katamu tanpa menarik kecurigaan, dan tebak kata mayoritas dari petunjuk pemain lain. Kamu menang bersama Mr. White kalau jumlah Civilian sudah tidak lebih banyak dari kalian.`},
@@ -643,6 +731,145 @@ const WPEN=[['Coffee','Tea'],['Cat','Dog'],['Meatball soup','Chicken noodles'],[
  Object.keys(RVEN).forEach(k=>{if(RV[k]){EN[RV[k][1]]=RVEN[k];EN[fs(RV[k][1])]=fs(RVEN[k])}if(RL[k])EN[RL[k][2]]=RLEN[k]});
  ['civ','und','white'].forEach(k=>{EN[MV[k].d]=MVEN[k];EN[fs(MV[k].d)]=fs(MVEN[k])});
  WP.forEach((pr,i)=>pr.forEach((w,j)=>{EN[w]=WPEN[i][j]}));EN['Kepala Desa']='Village Head'})();
+/* terjemahan + pengingat manual untuk peran tambahan */
+(()=>{const fs=t=>t.split('. ')[0].replace(/\.$/,'')+'.';
+ NEWR.forEach(([k,n,t,e,d,en])=>{EN[d]=en;EN[fs(d)]=fs(en)});
+ EN['📝 Peran tambahan (dijalankan manual)']='📝 Extra roles (run manually)';
+ EN['Peran ini tidak punya kolom otomatis. Moderator catat dan jalankan efeknya sendiri.']='These roles have no automatic column. The moderator notes and runs their effects manually.';
+})();
+/* ===== Kategori peran (Utama/Lanjutan + fungsi), deskripsi terkelompok, dan Catat Aksi Malam untuk peran tambahan ===== */
+(()=>{
+const LV2=new Set(NEWK.slice(NEWK.indexOf('butcher')));
+const FNS={P:['🛡️','Pelindung'],I:['🔍','Penyelidik'],A:['🗡️','Penyerang'],D:['🌀','Pengganggu'],M:['✨','Magis/Ritual'],C:['💥','Kekacauan'],O:['📌','Lainnya']};
+const FNK={},setf=(f,s)=>s.split(' ').forEach(k=>FNK[k]=f);
+setf('P','guardian bodyguard sick toughguy beasthunter scarecrow guardianwolf stubbornwolf baker pacifist');
+setf('I','seer auraseer detective priest medium analyst astronomer wolfseer evildetective gambler flagger bellringer');
+setf('A','werewolf alpha cub killer hunter vigilante gunner arsonist jailer splitwolf werewolfberserk toxicwolf voodoowolf candywolf stormwolf headlesshorseman zombie dracula cannibal avenger butcher bully headhunter');
+setf('D','minion redlady witch nightmare wolfshaman wolftrickster corruptor grumpygrandma instigator loudmouth siren illusionist forger pumpkindealer');
+setf('M','cupid violinist ritualist conjuror ferryman sorcerer ghostwolf wolfsummoner alchemist jellywolf preacher');
+setf('C','orphan mayor fool bandit anarchist blindwolf fireworkwolf partywolf wolfluencer wolfscribe werewolffan kittenwolf shapeshifter cursed judge shadowwolf');
+const lvOf=k=>LV2.has(k)?2:1,fnOf=k=>FNK[k]||'O';
+/* tipe aksi malam tiap peran tambahan */
+const CT={},setc=(t,s)=>s.split(' ').forEach(k=>CT[k]=t);
+setc('protect','beasthunter guardianwolf');
+setc('block','redlady jailer nightmare');
+setc('kill','vigilante gunner');
+setc('look','auraseer wolfseer');
+setc('vis','detective');
+setc('dead','priest');
+setc('arson','arsonist');setc('fake','wolfshaman');
+setc('pas','toughguy cursed seerapprentice scarecrow loudmouth avenger judge bellringer bully werewolffan shadowwolf stubbornwolf jellywolf blindwolf fool headhunter pacifist');
+NEWK.forEach(k=>{if(!CT[k])CT[k]='mark'});
+const PH={fake:0,block:1,protect:2,bind:2,mark:3,kill:4,arson:4,look:5,dead:5,vis:6,pas:9};
+const LBL={protect:'Pilih 1 orang untuk dilindungi',block:'Pilih 1 orang yang dihalangi',kill:'Pilih 1 target tembakan',look:'Pilih 1 orang, hasil tampil di layar',vis:'Pilih 1 orang, hasil pengunjung keluar setelah proses malam',dead:'Pilih pemain yang sudah mati, hasil tampil di layar',bind:'Pilih 2 orang yang diikat (sekali per game)',arson:'Siram target, lalu bakar semua yang tersiram sekaligus',fake:'Pilih 1 orang yang hasil investigasinya dipalsukan',mark:'Pilih target (opsional) dan tulis catatan, efek dijalankan manual moderator',pas:'Pasif, tidak punya aksi malam'};
+const OLDL={werewolf:'Bangun bersama serigala, pilih korban',alpha:'Bangun bersama serigala; sekali boleh ubah korban jadi Werewolf',cub:'Bangun bersama serigala, pilih korban',minion:'Tidak bangun (hanya melihat serigala 1x)',seer:'Pilih 1 orang, hasil tampil di layar',guardian:'Pilih 1 orang untuk dilindungi',bodyguard:'Pilih 1 orang untuk dijaga',cupid:'Malam 1: pilih pasangan',orphan:'Malam 1: pilih Parent',killer:'Pilih 1 korban',villager:'Pasif, tidak punya aksi malam',hunter:'Pasif, menembak saat mati',mayor:'Pasif, suara ganda saat voting',sick:'Pasif'};
+const SC=k=>{const n=RL[k][0],t=CT[k];if(t=='pas')return 'Pasif: tidak perlu dibangunkan.';
+ const m={protect:'Dia menunjuk 1 orang yang dilindungi.',block:'Dia menunjuk 1 orang yang dihalangi. Jangan bangunkan targetnya nanti, atau bangunkan lalu beri isyarat ❌ "kemampuanmu gagal".',kill:'Dia menunjuk target tembakan.',look:'Dia menunjuk 1 orang. Hasil muncul di layar: tunjukkan ke dia saja, atau beri isyarat 👍/👎.',vis:'Dia menunjuk 1 orang. Hasilnya keluar di catatan moderator setelah Proses Hasil Malam: bisikkan ke dia sebelum pagi.',dead:'Dia menunjuk 1 pemain yang sudah mati. Hasil tampil di layar untuk dia saja.',bind:'Dia menunjuk 2 orang. Bangunkan keduanya sebentar supaya saling kenal.',arson:'Siram: dia menunjuk orang yang disiram. Bakar: dia memberi isyarat 🔥, lalu ketuk "Bakar semua".',fake:'Dia menunjuk 1 orang yang hasil investigasinya dipalsukan. Panggil sebelum peran penyelidik.',mark:'Dia menunjuk target lewat isyarat jari (kalau ada). Ketuk nama, tulis catatan efeknya, lalu jalankan efeknya manual.'}[t];
+ return `Panggil "${n}, buka mata." ${m} Lalu "tutup mata."`};
+const fs1=t=>t.split('. ')[0].replace(/\.$/,'')+'.';
+const TMN={V:'🏘️ Village',W:'🐺 Wolf Team',N:'⚖️ Neutral'};
+const flex='display:flex;flex-wrap:wrap;gap:6px;margin:8px 0';
+const chip=(on,fn,l)=>`<button class="g sm${on?' sel':''}" onclick="${fn}">${l}</button>`;
+const chips=(st,setFn)=>`<div style="${flex}">${chip(st.lv==1,`${setFn}('lv',1)`,`Utama (${Object.keys(RL).filter(k=>lvOf(k)==1).length})`)}${chip(st.lv==2,`${setFn}('lv',2)`,`⚠️ Lanjutan (${Object.keys(RL).filter(k=>lvOf(k)==2).length})`)}</div><div style="${flex}">${chip(st.tm=='all',`${setFn}('tm','all')`,'Semua tim')}${['V','W','N'].map(t=>chip(st.tm==t,`${setFn}('tm','${t}')`,TMN[t])).join('')}</div>`;
+/* ----- Deskripsi Peran (Werewolf) terkelompok ----- */
+let RD={lv:1,tm:'all',fn:'all'};
+window.rdSet=(k,v)=>{RD[k]=v;roleDescWW()};
+const rcard=k=>{const i=roleInfo('ww',k),f=FNS[fnOf(k)],t=CT[k];return `<details class=card style="padding:10px 12px"><summary style="display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none">${i.logo(40)}<span style="flex:1;min-width:0"><b>${i.n}</b>${lvOf(k)==2?' <span class=tag style="background:#b45309">⚠️ Sulit</span>':''}<br><small>${f[0]} ${f[1]}</small></span><span>▾</span></summary><p class=rtext style="margin-top:8px">${i.d}</p><p class=rtext style="font-size:12.5px"><b>🌙 Aksi malam:</b> ${t?LBL[t]:(OLDL[k]||'-')}</p>${t?`<p class=rtext style="font-size:12.5px"><b>🗣️ Naskah moderator:</b> ${SC(k)}</p>`:''}</details>`};
+window.roleDescWW=()=>{setSt('DESKRIPSI PERAN');
+ const ks=Object.keys(RL).filter(k=>lvOf(k)==RD.lv&&(RD.tm=='all'||RL[k][1]==RD.tm)&&(RD.fn=='all'||fnOf(k)==RD.fn));
+ const fnc=`<div style="${flex}">${chip(RD.fn=='all',"rdSet('fn','all')",'Semua fungsi')}${Object.keys(FNS).map(f=>chip(RD.fn==f,`rdSet('fn','${f}')`,FNS[f][0]+' '+FNS[f][1])).join('')}</div>`;
+ const body=['V','W','N'].map(t=>{const r=ks.filter(k=>RL[k][1]==t);if(!r.length)return '';
+  return `<h3 style="margin:16px 0 4px">${TMN[t]} · ${r.length}</h3>`+Object.keys(FNS).map(f=>{const q=r.filter(k=>fnOf(k)==f);return q.length?`<div style="margin:8px 0 2px;font-weight:800;font-size:13px;opacity:.8">${FNS[f][0]} ${FNS[f][1]} (${q.length})</div>${q.map(rcard).join('')}`:''}).join('')}).join('');
+ R(`<button class=g onclick="gameMenu('ww')">← Kembali</button><h2>Deskripsi Peran Werewolf</h2>${chips(RD,'rdSet')}${fnc}<p>${ks.length} peran. Ketuk peran untuk melihat penjelasan dan naskah moderator.</p>${body||'<div class=card>Tidak ada peran di filter ini.</div>'}<button class=g onclick="gameMenu('ww')">← Kembali</button>`)};
+const rd0=window.roleDesc;window.roleDesc=function(g){if(g=='ww'){RD={lv:1,tm:'all',fn:'all'};return roleDescWW()}return rd0.apply(this,arguments)};
+/* ----- Ganti peran (moderator) dengan tab Utama/Lanjutan ----- */
+let SP={lv:1,tm:'all'},SPK=null;
+window.spSet=(k,v)=>{SP[k]=v;swapList()};
+window.swapPick=k=>{SPK=k;SP={lv:1,tm:'all'};swapList()};
+window.swapList=()=>{const k=SPK;setSt('GANTI PERAN');const have={};ST.roles.forEach(r=>have[r]=1);const cur=roleInfo('ww',k);
+ const ls=Object.keys(RL).filter(r=>r!=k&&lvOf(r)==SP.lv&&(SP.tm=='all'||RL[r][1]==SP.tm));
+ R(`<button class=g onclick=showComp()>← Batal</button><h2>Ganti ${cur.n} menjadi...</h2><p>Pilih peran pengganti. Peran khusus yang sudah ada di susunan tidak bisa dipilih lagi.</p>${chips(SP,'spSet')}${ls.map(r=>{const i=roleInfo('ww',r),off=UNIQ(r)&&have[r],f=FNS[fnOf(r)];return `<div class="card pickrole${off?' off':''}" ${off?'':`onclick="swapTo('${k}','${r}')"`}><div class=rhead>${i.logo(48)}<div><b class=rname style="font-size:16px">${i.n}</b><span class=tag style="background:${i.tc}">${i.team}</span>${lvOf(r)==2?' <span class=tag style="background:#b45309">⚠️ Sulit</span>':''}<br><small>${f[0]} ${f[1]}</small></div></div><p class=rtext style="font-size:12.5px">${i.d.split('. ')[0].replace(/\.$/,'')}.</p>${off?'<small>Sudah ada di susunan</small>':''}</div>`}).join('')||'<div class=card>Tidak ada peran di filter ini.</div>'}`)};
+/* ----- Catat Aksi Malam: peran tambahan ----- */
+const DC0={vigilante:'Ditembak Vigilante',gunner:'Ditembak Gunner'};
+Object.keys(DC0).forEach(k=>DC['x:'+k]=DC0[k]);DC.burn='Terbakar (Arsonist)';DC.bind='Ikut mati karena jiwanya terikat (Soulbinder)';
+let KC={};
+const k0=window.kill;
+window.kill=function(id,c,i){if(c=='kill'&&KC[id])c=KC[id];k0(id,c,i);const p=G.p[id];
+ if(p&&!p.alive&&c!='bind'&&G.bound&&G.bound.includes(id)){const o=G.bound.find(x=>x!=id);if(G.p[o]&&G.p[o].alive)kill(o,'bind')}};
+const CRIM=new Set('killer arsonist bomber cannibal evildetective headlesshorseman dracula zombie blight alchemist'.split(' '));
+const faked=t=>A().some(s=>s.role=='wolfshaman'&&NA.x[s.id]&&NA.x[s.id].t===t);
+const xShow=(title,body)=>{setSt('HASIL');R(`<h2>${title}</h2><div class="card role" style="text-align:center">${body}</div><p>Tunjukkan ini cuma ke pemainnya, lalu lanjut isi aksi malam yang lain.</p><button class=a onclick=renderNightAction()>Lanjut</button>`)};
+const pcard=(p,inf)=>`<div class=center>${avatar(p.id,64)}<h2 style="margin:4px 0 0">${esc(p.name)}</h2>${inf?`<div class=rh>${inf.logo(80)}<h1 style="margin:4px 0 0">${inf.n}</h1><span class=tag style="background:${inf.tc}">${inf.team}</span></div>`:''}</div>`;
+window.xLook=(a,t)=>{const k=G.p[a].role,p=G.p[t],r=p.role,tm=(r=='shadowwolf'||r=='orphan'||r=='minion')?'V':RL[r][1],fk=faked(t);
+ if(k=='auraseer'){let e=tm=='W';if(fk)e=!e;const s=(tm=='N'&&!fk)?'⚪ Abu-abu (netral)':e?'🔴 Jahat':'🟢 Baik';return xShow('Hasil Aura Seer',pcard(p)+`<h1>${s}</h1>`)}
+ if(k=='sheriff'){let c=tm=='W'||CRIM.has(r);if(r=='shadowwolf')c=false;if(fk)c=!c;return xShow('Hasil Sheriff',pcard(p)+`<h1>${c?'🚨 Penjahat':'✅ Bersih'}</h1>`)}
+ const key=(fk||r=='shadowwolf'||r=='orphan')?'villager':r;xShow('Hasil Wolf Seer',pcard(p,roleInfo('ww',key)))};
+window.xDead=(a,t)=>{const p=G.p[t];xShow('Hasil '+RL[G.p[a].role][0],pcard(p,roleInfo('ww',p.role)))};
+window.xPick=(a,t)=>{const s=NA.x[a]=NA.x[a]||{};s.t=s.t===t?null:t;renderNightAction()};
+window.xTog=(a,t,max)=>{const s=NA.x[a]=NA.x[a]||{};const v=s.t2=s.t2||[],i=v.indexOf(t);if(i>=0)v.splice(i,1);else{if(max&&v.length>=max)v.shift();v.push(t)}renderNightAction()};
+window.xFlag=a=>{const s=NA.x[a]=NA.x[a]||{};s.f=!s.f;renderNightAction()};
+window.xTxt=(a,v)=>{const s=NA.x[a]=NA.x[a]||{};s.txt=v};
+const grid=(list,fn,sel)=>`<div class=grid>${list.map(p=>`<button class="g${sel(p.id)?' sel':''}" onclick="${fn(p.id)}">${esc(p.name)}</button>`).join('')}</div>`;
+const xCard=(p,al,dead)=>{const k=p.role,t=CT[k],inf=roleInfo('ww',k),s=NA.x[p.id]||{},oth=al.filter(q=>q.id!=p.id),id=p.id;let c='';
+ if(t=='protect')c=grid(al,i=>`xPick(${id},${i})`,i=>s.t===i);
+ else if(t=='look')c=grid(oth,i=>`xLook(${id},${i})`,()=>false);
+ else if(t=='dead')c=dead.length?grid(dead,i=>`xDead(${id},${i})`,()=>false):'<p>Belum ada yang mati.</p>';
+ else if(t=='bind')c=G.bound?`<p>Sudah terikat: <b>${G.bound.map(i=>esc(G.p[i].name)).join(' ⛓ ')}</b></p>`:grid(al,i=>`xTog(${id},${i},2)`,i=>(s.t2||[]).includes(i))+((s.t2||[]).length==2?`<p>Terpilih: <b>${s.t2.map(i=>esc(G.p[i].name)).join(' ⛓ ')}</b></p>`:'');
+ else if(t=='arson'){const ds=(G.doused||[]).filter(i=>G.p[i].alive);c=`<p>Sudah tersiram: <b>${ds.length?ds.map(i=>esc(G.p[i].name)).join(', '):'belum ada'}</b></p><p>Siram malam ini:</p>`+grid(oth.filter(q=>!ds.includes(q.id)),i=>`xTog(${id},${i})`,i=>(s.t2||[]).includes(i))+`<button class="g${s.f?' sel':''}" onclick="xFlag(${id})">🔥 Bakar semua yang tersiram malam ini</button>`}
+ else{c=grid(oth,i=>`xPick(${id},${i})`,i=>s.t===i);if(t=='mark')c+=`<input placeholder="Catatan efek (opsional)" value="${esc(s.txt||'')}" oninput="xTxt(${id},this.value)" style="width:100%;margin-top:6px">`}
+ return `<div class=card><b>${inf.logo(28)} ${inf.n}: ${esc(p.name)}</b><p style="font-size:12.5px;opacity:.85;margin:4px 0 8px">🗣️ ${SC(k)}</p>${c}</div>`};
+const rn0=window.renderNightAction;
+window.renderNightAction=function(){rn0.apply(this,arguments);if(!NA)return;NA.x=NA.x||{};
+ const al=A(),dead=G.p.filter(p=>!p.alive),mine=al.filter(p=>NEWK.includes(p.role));
+ if(!mine.length&&!NA.x.inh)return;
+ const act=mine.filter(p=>CT[p.role]!='pas').sort((a,b)=>PH[CT[a.role]]-PH[CT[b.role]]),pas=mine.filter(p=>CT[p.role]=='pas');
+ let h='';
+ if(NA.x.inh)h+=`<div class=card style="border-color:#8134AF"><b>🔮 Seer Apprentice ${esc(NA.x.inh)} sekarang menjadi Seer.</b><p>Beri tahu dia diam-diam, lalu panggil sebagai Seer malam ini.</p></div>`;
+ if(act.length)h+=`<h3 style="margin:14px 0 4px">📝 Aksi peran tambahan</h3><p>Panggil sesuai urutan dari atas ke bawah. Peran yang sedang tidak dipanggil tidak boleh tahu apa-apa.</p>`+act.map(p=>xCard(p,al,dead)).join('');
+ if(pas.length)h+=`<div class=card><b>💤 Peran pasif (tidak dibangunkan)</b>${pas.map(p=>{const f=roleInfo('ww',p.role);return `<div class=row><span class=cnt>${f.logo(30)}<span><b>${esc(p.name)}</b> · ${f.n}<br><small>${fs1(f.d)}${['toughguy','cursed','seerapprentice','shadowwolf'].includes(p.role)?' ✅ otomatis diproses aplikasi':''}</small></span></span></div>`}).join('')}</div>`;
+ const b=[...document.querySelectorAll('button.a')].find(x=>(x.getAttribute('onclick')||'').includes('naProcess'));if(b&&h){const d=document.createElement('div');d.innerHTML=h;b.before(d)}};
+const ns0=window.nightActionStart;
+window.nightActionStart=function(){let ap=null;const sr=G.p.some(p=>p.role=='seer'&&!p.alive),ca=A().find(p=>p.role=='seerapprentice');
+ if(sr&&ca&&!A().some(p=>p.role=='seer')){ca.role='seer';ca.u={};ap=ca.name}
+ ns0.apply(this,arguments);if(NA){NA.x={};if(ap)NA.x.inh=ap}};
+const xPre=()=>{const X=NA.x,al=A(),nt=[],pv=[],nm=i=>esc(G.p[i].name),rn=p=>RL[p.role][0];
+ const oA=[...NA.atk],oK=[...NA.kill],oG=[...NA.guard],oB=NA.bodyguardTarget;KC={};
+ const act=al.filter(p=>NEWK.includes(p.role)),T=p=>(X[p.id]&&X[p.id].t!=null)?X[p.id].t:null;
+ const blocked=new Set();
+ act.filter(p=>CT[p.role]=='block'&&T(p)!=null).forEach(p=>{blocked.add(T(p));nt.push(`⛔ ${esc(p.name)} (${rn(p)}) menghalangi ${nm(T(p))}.`)});
+ blocked.forEach(id=>{const r=G.p[id].role;
+  if(r=='guardian'){NA.guard.clear();nt.push(`⛔ Guardian ${nm(id)} dihalangi, perlindungannya batal.`)}
+  if(r=='killer'){NA.kill.clear();nt.push(`⛔ Killer ${nm(id)} dihalangi, serangannya batal.`)}
+  if(r=='bodyguard'){NA.bodyguardTarget=null;nt.push(`⛔ Bodyguard ${nm(id)} dihalangi, penjagaannya batal.`)}
+  if(r=='cupid')NA.link=null;
+  if(NEWK.includes(r)&&X[id])X[id]={}});
+ const live=p=>!blocked.has(p.id);
+ act.filter(p=>live(p)&&CT[p.role]=='protect'&&T(p)!=null).forEach(p=>{NA.guard.add(T(p));nt.push(`🛡️ ${esc(p.name)} (${rn(p)}) melindungi ${nm(T(p))}.`)});
+ act.filter(p=>live(p)&&CT[p.role]=='kill'&&T(p)!=null).forEach(p=>{NA.kill.add(T(p));KC[T(p)]='x:'+p.role;nt.push(`🎯 ${esc(p.name)} (${rn(p)}) menembak ${nm(T(p))}.`)});
+ act.filter(p=>live(p)&&CT[p.role]=='arson').forEach(p=>{const s=X[p.id]||{};G.doused=[...new Set([...(G.doused||[]),...(s.t2||[])])];
+  if((s.t2||[]).length)nt.push(`🔥 Arsonist menyiram ${(s.t2).map(nm).join(', ')}.`);
+  if(s.f){const ds=G.doused.filter(i=>G.p[i].alive);ds.forEach(i=>{NA.kill.add(i);KC[i]='burn'});nt.push(`🔥 Arsonist membakar: ${ds.length?ds.map(nm).join(', '):'tidak ada yang tersiram'}.`);G.doused=[]}});
+ al.filter(p=>p.role=='toughguy'&&!(p.u&&p.u.tough)&&(NA.atk.has(p.id)||NA.kill.has(p.id))).forEach(p=>{p.u=p.u||{};p.u.tough=1;NA.guard.add(p.id);pv.push(`💪 Tough Guy ${esc(p.name)} selamat dari serangan pertama. Kemampuannya habis.`)});
+ al.filter(p=>p.role=='cursed'&&NA.atk.has(p.id)).forEach(p=>{if(NA.guard.has(p.id)||NA.bodyguardTarget===p.id)return;NA.atk.delete(p.id);if(NA.alphaConvert===p.id)NA.alphaConvert=null;p.role='werewolf';p.u={};pv.push(`😈 Cursed ${esc(p.name)} diserang serigala dan berubah jadi Werewolf (tidak mati). Beri tahu dia diam-diam dan pertemukan dengan serigala.`)});
+ act.filter(p=>live(p)&&CT[p.role]=='bind'&&!G.bound&&X[p.id]&&(X[p.id].t2||[]).length==2).forEach(p=>{G.bound=[...X[p.id].t2];pv.push(`⛓ Soulbinder mengikat ${G.bound.map(nm).join(' dan ')}. Kalau satu mati, yang lain ikut mati.`)});
+ act.filter(p=>live(p)&&CT[p.role]=='vis'&&T(p)!=null).forEach(p=>{const t=T(p),v=[];
+  act.forEach(q=>{const s=X[q.id];if(q.id!=p.id&&s&&(s.t===t||(s.t2||[]).includes(t)))v.push(esc(q.name))});
+  if(oA.includes(t))v.push('serigala');
+  if(oK.includes(t)){const k=al.find(x=>x.role=='killer');if(k)v.push(esc(k.name))}
+  if(oG.includes(t)){const k=al.find(x=>x.role=='guardian');if(k)v.push(esc(k.name))}
+  if(oB===t){const k=al.find(x=>x.role=='bodyguard');if(k)v.push(esc(k.name))}
+  pv.push(`🔍 ${rn(p)} ${esc(p.name)} memeriksa ${nm(t)}. Dikunjungi: ${v.length?v.join(', '):'tidak ada seorang pun'}.`)});
+ act.filter(p=>['mark','fake'].includes(CT[p.role])).forEach(p=>{const s=X[p.id]||{},t=s.t!=null?s.t:null;if(t==null&&!s.txt)return;
+  pv.push(`📝 ${rn(p)} ${esc(p.name)}${t!=null?' → '+nm(t):''}${s.txt?': '+esc(s.txt):''}${live(p)?' (jalankan efeknya manual)':' (dihalangi, aksi batal)'}.`)});
+ return nt.concat(pv)};
+const np0=window.naProcess;
+window.naProcess=function(){const notes=(NA&&NA.x)?xPre():[];np0.apply(this,arguments);
+ if(!notes.length)return;const c=document.querySelector('#app .card')||document.querySelector('.card');
+ if(c)c.insertAdjacentHTML('afterend',`<div class=card style="border-color:#8134AF"><b>🔒 Catatan moderator (jangan dibacakan)</b>${notes.map(n=>`<p style="margin:4px 0">${n}</p>`).join('')}</div>`)};
+/* terjemahan label baru */
+Object.assign(EN,{'Deskripsi Peran Werewolf':'Werewolf Role Descriptions','Semua tim':'All teams','Semua fungsi':'All functions','Pelindung':'Protector','Penyelidik':'Investigator','Penyerang':'Attacker','Pengganggu':'Disruptor','Magis/Ritual':'Magic/Ritual','Kekacauan':'Chaos','Lainnya':'Other','⚠️ Sulit':'⚠️ Hard','Ketuk peran untuk melihat penjelasan dan naskah moderator.':'Tap a role to see its explanation and the moderator script.','Tidak ada peran di filter ini.':'No roles match this filter.','📝 Aksi peran tambahan':'📝 Extra role actions','Panggil sesuai urutan dari atas ke bawah. Peran yang sedang tidak dipanggil tidak boleh tahu apa-apa.':'Call them in order from top to bottom. Roles that are not being called must not know anything.','💤 Peran pasif (tidak dibangunkan)':'💤 Passive roles (not woken)','🔒 Catatan moderator (jangan dibacakan)':'🔒 Moderator notes (do not read aloud)','Beri tahu dia diam-diam, lalu panggil sebagai Seer malam ini.':'Tell them quietly, then call them as the Seer tonight.','Belum ada yang mati.':'Nobody has died yet.'});
+PT.push([/^(\d+) peran\. Ketuk peran untuk melihat penjelasan dan naskah moderator\.$/,'$1 roles. Tap a role to see its explanation and the moderator script.'],[/^Utama \((\d+)\)$/,'Main ($1)'],[/^⚠️ Lanjutan \((\d+)\)$/,'⚠️ Advanced ($1)']);
+})();
 let LANG=ls.get('lang','id');
 const trs=s=>{const m=s.match(/^(\s*)([\s\S]*?)(\s*)$/),c=m[2];if(!c)return s;let r=EN[c];
  if(r===undefined)for(const[x,y]of PT){if(x.test(c)){r=c.replace(x,y);break}}
