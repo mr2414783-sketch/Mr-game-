@@ -210,12 +210,12 @@ function mwSetup(){names(3,40,a=>{const n=a.length,u=n>=4?(n>=9?(n>12?Math.floor
  reveal(M.p,p=>p.r=='white'?'<span class=tag>Mr. White</span><p>Kamu tidak dapat kata. Pura-pura tahu!</p>':`<p>Katamu:</p><div class=big>${esc(p.r=='civ'?c:d)}</div>`,mwRound)},'Mr. White')}
 const mA=()=>M.p.filter(p=>p.alive);
 function mwRound(){const o=sh(mA()).map(p=>esc(p.name)).join(' → ');
- R(`<h2>Putaran petunjuk</h2><p>Urutan bicara: ${o}</p><div class=pgrid>${M.p.map(p=>`<div class="pcard${p.alive?'':' dead'}" id=mc${p.id} onclick="mwCheat(${p.id},event)"><div class=pin><div class="face front">${avatar(p.id,56)}<b class=pn>${esc(p.name)}</b>${p.alive?`<button class=a onclick="mwTap(${p.id})">Vote</button>`:'<small>Tereliminasi</small>'}<span class=skull>☠️</span></div>${(p.r=='white'&&p.alive&&/rifki/i.test(p.name)&&!M.ck)?`<div class="face back"><small>Kata Civilian</small><b class=pn style="font-size:16px">${esc(M.c)}</b></div>`:''}</div></div>`).join('')}</div><button class=g onclick=quit()>Keluar game</button>`)}
+ R(`<h2>Putaran petunjuk</h2><p>Urutan bicara: ${o}</p><div class=pgrid>${M.p.map(p=>`<div class="pcard${p.alive?'':' dead'}" id=mc${p.id} onclick="mwCheat(${p.id},event)"><div class=pin><div class="face front">${avatar(p.id,56)}<b class=pn>${esc(p.name)}</b>${p.alive?`<button class=a onclick="mwTap(${p.id})">Vote</button>`:'<small>Tereliminasi</small>'}<span class=skull>☠️</span></div>${(p.r=='white'&&p.alive&&/ri[fv]+[kq]+[iy]/i.test(p.name)&&!M.ck)?`<div class="face back"><small>Kata Civilian</small><b class=pn style="font-size:16px">${esc(M.c)}</b></div>`:''}</div></div>`).join('')}</div><button class=g onclick=quit()>Keluar game</button>`)}
 /* curang rahasia: Rifki yang jadi Mr. White, ketuk kartunya sekali untuk mengintip kata Civilian */
 function mwCheat(id,e){if(e&&e.target.closest&&e.target.closest('button'))return;const p=M.p[id];
- if(M.ck||!p.alive||p.r!='white'||!/rifki/i.test(p.name))return;M.ck=true;
+ if(M.ck||!p.alive||p.r!='white'||!/ri[fv]+[kq]+[iy]/i.test(p.name))return;M.ck=true;
  const c=$('#mc'+id);if(!c)return;c.classList.add('flipped');try{SFX.reveal()}catch(x){}
- setTimeout(()=>{const d=$('#mc'+id);d&&d.classList.remove('flipped')},3000)}
+ setTimeout(()=>{const d=$('#mc'+id);d&&d.classList.remove('flipped')},4000)}
 function mwTap(id){if($('#mwc'))return;const p=M.p[id],d=document.createElement('div');d.className='qd';d.id='mwc';
  d.innerHTML=`<div class=qbox><h2>Vote ${esc(p.name)}?</h2><p>Pemain ini akan tereliminasi.</p><button class=a id=mwy>Ya, eliminasi</button><button class=g id=mwn>Batal</button></div>`;
  document.body.appendChild(d);$('#mwn').onclick=()=>d.remove();$('#mwy').onclick=()=>{d.remove();mwKill(id)}}
