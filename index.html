@@ -473,7 +473,7 @@ function plan(){const o=GAMES[ST.g],n=parseInt($('#cv').value,10);
  if(!(n>=o.min&&n<=o.max))return $('#er').textContent=`Isi jumlah pemain ${o.min}–${o.max}.`;
  ST.n=n;ST.cards=Array.from({length:n},()=>({name:null}));ST.done=0;
  if(ST.g=='ww')ST.roles=deal(n);
- else{const u=n>=4?(n>=9?(n>12?Math.floor(n/5):2):1):0,pr=pickWP(),[c,d]=Math.random()<.5?pr:[pr[1],pr[0]];ST.c=c;ST.d=d;ST.roles=sh([...Array(n-u-1).fill('civ'),...Array(u).fill('und'),'white'])}
+ else{const u=n>=4?(n>=9?(n>12?Math.floor(n/5):2):1):0,pr=pickWP(),[c,d]=Math.random()<.5?pr:[pr[1],pr[0]];ST.c=c;ST.d=d;const m=Math.min(n-1,Math.max(u,Math.ceil((n-1)*.7))),pos=sh([...Array(m).keys()]).slice(0,u),sq=Array(n).fill('civ');pos.forEach(x=>sq[x]='und');const lu=pos.length?Math.max(...pos):-1;sq[lu+1+(Math.random()*(n-1-lu)|0)]='white';ST.seq=sq;ST.roles=[...ST.seq]}
  showComp()}
 
 function pickCards(anim){setSt('PILIH FOTO');
@@ -484,8 +484,8 @@ function askName(i){setSt('ISI NAMA');
  setTimeout(()=>{const e=$('#pn');e&&e.focus()},60)}
 function seeRole(i){const v=$('#pn').value.trim();if(!v)return $('#er').textContent='Tulis namamu dulu.';
  let nm=v,k=2;while(ST.cards.some(c=>c.name&&c.name.toLowerCase()==nm.toLowerCase()))nm=v+' '+k++;
- ST.cards[i].name=nm;const r=ST.roles[i],inf=roleInfo(ST.g,r);setSt('PERANMU');
- if(ST.g=='mw'){R(`<div class=center style="margin-top:18px">${avatar(i,96)}<h2 style="margin:4px 0 8px">${esc(nm)}</h2>${r=='white'?`<div class=rh>${inf.logo(110)}<h1 style="margin:6px 0 10px">${inf.n}</h1></div>`:`<p style="margin:6px 0 0">Kata rahasiamu:</p><div class=big style="margin:0 0 10px">${esc(r=='civ'?ST.c:ST.d)}</div>`}<button class=a onclick="roleOk(${i})">OK, sudah paham</button></div>`);return}
+ ST.cards[i].name=nm;if(ST.g=='mw'&&ST.seq)ST.roles[i]=ST.seq[ST.done];ST.cards[i].r=ST.roles[i];const r=ST.roles[i],inf=roleInfo(ST.g,r);setSt('PERANMU');
+ if(ST.g=='mw'){R(`<div class=center style="margin-top:18px">${avatar(i,96)}<h2 style="margin:4px 0 8px">${esc(nm)}</h2>${r=='white'?`<div class=rh>${inf.logo(110)}<h1 style="margin:6px 0 10px">${inf.n}</h1></div>${ST.cards.some(c=>c.r=='und')?`<div class=card style="width:100%"><p style="margin:0">Undercover-nya:</p><h2 style="margin:4px 0 0">${ST.cards.filter(c=>c.r=='und').map(c=>esc(c.name)).join(', ')}</h2><p class=rtext style="margin:6px 0 0">Kamu belum tahu kata mereka. Dengarkan petunjuk lalu berpura-pura tahu.</p></div>`:''}`:`<p style="margin:6px 0 0">Kata rahasiamu:</p><div class=big style="margin:0 0 10px">${esc(r=='civ'?ST.c:ST.d)}</div>`}<button class=a onclick="roleOk(${i})">OK, sudah paham</button></div>`);return}
  const word=ST.g=='mw'?(r=='white'?`<div class=card style="margin:6px 0"><b>Tidak ada kata untukmu.</b><p style="margin:2px 0 0">Pura-pura tahu katanya!</p></div>`:`<p style="margin:6px 0 0">Kata rahasiamu:</p><div class=big style="margin:0">${esc(r=='civ'?ST.c:ST.d)}</div>`):'';
  R(`<div class=center style="margin-top:8px">${avatar(i,64)}<h2 style="margin:2px 0">${esc(nm)}</h2><div class=rh>${inf.logo(92)}<h1 style="margin:4px 0 0">${inf.n}</h1><span class=tag style="background:${inf.tc}">${inf.team}</span></div>${word}<div class=card style="text-align:left;width:100%"><p class=rtext>${inf.d}</p></div><button class=a onclick="roleOk(${i})">OK, sudah paham</button></div>`)}
 function roleOk(i){ST.done++;pickCards(i)}
@@ -692,7 +692,7 @@ const EN={
 'Pilih 1 pemain (bukan dirinya sendiri) sebagai Parent-nya. Ini rahasia, jangan diberitahu ke pemain lain.':'Pick 1 player (not themselves) as their Parent. This is secret, do not tell other players.',
 'Hasil Malam':'Night Result','Meninggal malam ini:':'Died tonight:','Tidak ada yang meninggal.':'Nobody died.','Diserang tapi masih hidup (terlindungi):':'Attacked but still alive (protected):','⚠️ Diam-diam diubah Alpha jadi Werewolf (beri tahu orangnya sendiri-sendiri, jangan di depan yang lain):':'⚠️ Secretly turned into a Werewolf by the Alpha (tell them privately, not in front of others):','💘 Lovers terpasang (rahasia, beri tahu mereka berdua saja):':'💘 Lovers linked (secret, tell only the two of them):','Lanjut ke papan':'Continue to board'
 };
-EN['2–40 pemain · jujur atau berani']='2–40 players · truth or dare';
+EN['2–40 pemain · jujur atau berani']='2–40 players · truth or dare';Object.assign(EN,{'Undercover-nya:':'The Undercover:','Kamu belum tahu kata mereka. Dengarkan petunjuk lalu berpura-pura tahu.':'You do not know their word. Listen to the clues and pretend you know it.'});
 Object.assign(EN,{'Perkenalan malam pertama':'First night introductions','Khusus moderator. Semua pemain tutup mata. Panggil tiap kelompok bergantian: suruh buka mata, saling kenalan, lalu tidur lagi. Peran sendirian tidak perlu dikenalkan.':'Moderator only. Everyone closes their eyes. Call each group in turn: have them open their eyes, meet each other, then go back to sleep. Solo roles do not need an introduction.','Lanjut ke papan moderator':'Continue to moderator board','🎭 Tunjukkan serigala ke Minion (1x)':'🎭 Show the wolves to the Minion (once)','Khusus Minion':'Minion only','Ini serigalamu':'These are your wolves','Tutup (hanya bisa dilihat 1x)':'Close (can only be seen once)','Serigala tidak tahu kamu Minion. Setelah dilihat, tutup lalu pejamkan mata.':'The wolves do not know you are the Minion. After looking, close this and shut your eyes.','Tidak ada serigala yang hidup.':'No wolves are alive.','semua serigala saling kenalan.':'all wolves get to know each other.','Kelompok':'Group','sendirian':'alone','🎭 tidak dikenal serigala':'🎭 unknown to the wolves'});
 const PT=[
 [/^(\d+)–(\d+) pemain · (\d+) peran · HP dipegang host$/,'$1–$2 players · $3 roles · phone held by the host'],
