@@ -473,7 +473,7 @@ function plan(){const o=GAMES[ST.g],n=parseInt($('#cv').value,10);
  if(!(n>=o.min&&n<=o.max))return $('#er').textContent=`Isi jumlah pemain ${o.min}–${o.max}.`;
  ST.n=n;ST.cards=Array.from({length:n},()=>({name:null}));ST.done=0;
  if(ST.g=='ww')ST.roles=deal(n);
- else{const u=n>=4?(n>=9?(n>12?Math.floor(n/5):2):1):0,pr=pickWP(),[c,d]=Math.random()<.5?pr:[pr[1],pr[0]];ST.c=c;ST.d=d;const m=Math.min(n-1,Math.max(u,Math.ceil((n-1)*.7))),pos=sh([...Array(m).keys()]).slice(0,u),sq=Array(n).fill('civ');pos.forEach(x=>sq[x]='und');const lu=pos.length?Math.max(...pos):-1;sq[lu+1+(Math.random()*(n-1-lu)|0)]='white';ST.seq=sq;ST.roles=[...ST.seq]}
+ else{const u=n>=4?(n>=9?(n>12?Math.floor(n/5):2):1):0,pr=pickWP(),[c,d]=Math.random()<.5?pr:[pr[1],pr[0]];ST.c=c;ST.d=d;const ps=sh([...Array(n).keys()]).slice(0,u+1).sort((x,y)=>x-y),sq=Array(n).fill('civ');ps.forEach((x,k)=>sq[x]=k<u?'und':'white');ST.seq=sq;ST.roles=[...ST.seq]}
  showComp()}
 
 function pickCards(anim){setSt('PILIH FOTO');
